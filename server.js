@@ -198,9 +198,9 @@ app.post('/api/order', upload.single('slip'), async (req, res) => {
 
     const approveLink = `${BASE_URL}/approve/${order.approveToken}`;
     await transporter.sendMail({
-      from: `"Adpro System" <${process.env.GMAIL_USER}>`,
+      from: `"StoryPro System" <${process.env.GMAIL_USER}>`,
       to: process.env.ADMIN_EMAIL,
-      subject: `🛒 ออเดอร์ใหม่ - ${name} | Adpro`,
+      subject: `🛒 ออเดอร์ใหม่ - ${name} | StoryPro`,
       html: `
         <div style="font-family:sans-serif;max-width:580px;margin:0 auto">
           <div style="background:#f97316;padding:20px;text-align:center;border-radius:8px 8px 0 0">
@@ -214,13 +214,19 @@ app.post('/api/order', upload.single('slip'), async (req, res) => {
               <tr style="background:#fff7ed"><td style="padding:8px;color:#888">เบอร์:</td><td style="padding:8px">${phone || '-'}</td></tr>
             </table>
             <div style="text-align:center;margin:20px 0">
-              <img src="${BASE_URL}/uploads/${req.file.filename}" style="max-width:280px;border-radius:8px;border:2px solid #fed7aa"/>
+              <p style="color:#888;font-size:13px;margin-bottom:8px">📎 สลิปโอนเงิน (แนบมาด้านล่าง)</p>
+              <img src="cid:slip_image" style="max-width:300px;border-radius:8px;border:2px solid #fed7aa"/>
             </div>
             <div style="text-align:center">
               <a href="${approveLink}" style="background:#f97316;color:white;padding:14px 36px;border-radius:8px;text-decoration:none;font-size:17px;font-weight:bold;display:inline-block">✅ Approve ออเดอร์นี้</a>
             </div>
           </div>
-        </div>`
+        </div>`,
+      attachments: [{
+        filename: req.file.originalname || 'slip.jpg',
+        path: req.file.path,
+        cid: 'slip_image'
+      }]
     });
 
     res.json({ success: true });
