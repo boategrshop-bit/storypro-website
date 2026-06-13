@@ -394,6 +394,19 @@
         </div>
       </div>
 
+      <!-- ORDER STATUS (แสดงเมื่อ login แล้วมีออเดอร์) -->
+      <div id="statusApproved" style="display:none;text-align:center;padding:28px 20px">
+        <div style="font-size:56px;margin-bottom:12px">✅</div>
+        <h3 style="color:#22c55e;margin:0 0 8px">ชำระเงินเรียบร้อยแล้ว!</h3>
+        <p style="color:#888;font-size:14px;margin-bottom:20px">กดปุ่มด้านล่างเพื่อเข้าใช้งาน StoryPro</p>
+        <a id="downloadBtnStatus" href="#" style="display:inline-block;background:linear-gradient(135deg,#f97316,#ea580c);color:white;padding:14px 32px;border-radius:12px;text-decoration:none;font-size:16px;font-weight:700">🚀 เข้าใช้งาน StoryPro</a>
+      </div>
+      <div id="statusPending" style="display:none;text-align:center;padding:28px 20px">
+        <div style="font-size:56px;margin-bottom:12px">⏳</div>
+        <h3 style="color:#f97316;margin:0 0 8px">สลิปของคุณรอการยืนยัน</h3>
+        <p style="color:#888;font-size:14px">แอดมินกำลังตรวจสอบ จะส่งลิงก์ไปที่อีเมลของคุณเร็วๆ นี้</p>
+      </div>
+
       <form id="orderForm">
         <div class="form-group">
           <label>ชื่อ-นามสกุล *</label>
@@ -589,6 +602,20 @@
         // Pre-fill form
         document.getElementById('inputName').value = u.name;
         document.getElementById('inputEmail').value = u.email;
+
+        // เช็คสถานะออเดอร์
+        try {
+          const oRes = await fetch('/api/my-order');
+          const oData = await oRes.json();
+          if (oData.status === 'approved') {
+            document.getElementById('orderForm').style.display = 'none';
+            document.getElementById('statusApproved').style.display = 'block';
+            document.getElementById('downloadBtnStatus').href = oData.downloadLink;
+          } else if (oData.status === 'pending') {
+            document.getElementById('orderForm').style.display = 'none';
+            document.getElementById('statusPending').style.display = 'block';
+          }
+        } catch(e) {}
       }
     } catch(e) {}
   }

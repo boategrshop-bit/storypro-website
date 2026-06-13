@@ -294,6 +294,21 @@ app.get('/download', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'download.html'));
 });
 
+// ---------- MY ORDER (เช็คสถานะของคนที่ login อยู่) ----------
+app.get('/api/my-order', (req, res) => {
+  if (!req.user) return res.json({ status: 'not_logged_in' });
+  const email = req.user.email?.toLowerCase();
+  if (!email) return res.json({ status: 'no_email' });
+  const orders = readOrders();
+  const order = orders
+    .filter(o => (o.googleEmail || '').toLowerCase() === email || (o.email || '').toLowerCase() === email)
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
+  if (!order) return res.json({ status: 'no_order' });
+  if (order.status === 'approved')
+    return res.json({ status: 'approved', downloadLink: `/download?t=${order.approveToken}`, name: order.name });
+  return res.json({ status: 'pending', name: order.name });
+});
+
 // ---------- ADMIN ----------
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
 app.get('/api/orders', (req, res) => res.json(readOrders().reverse()));
