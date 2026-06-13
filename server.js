@@ -295,14 +295,14 @@ app.get('/approve/:token', async (req, res) => {
           </div>
 
           <div style="text-align:center;margin-top:24px">
-            <a href="${BASE_URL}/download" style="background:linear-gradient(135deg,#f97316,#ea580c);color:white;padding:14px 32px;border-radius:10px;text-decoration:none;font-size:15px;font-weight:bold;display:inline-block">🚀 เข้าหน้าดาวน์โหลด</a>
+            <a href="${BASE_URL}/download?t=${order.approveToken}" style="background:linear-gradient(135deg,#f97316,#ea580c);color:white;padding:14px 32px;border-radius:10px;text-decoration:none;font-size:15px;font-weight:bold;display:inline-block">🚀 เข้าหน้าดาวน์โหลด</a>
           </div>
           <p style="color:#9ca3af;font-size:12px;text-align:center;margin-top:20px">ติดต่อ: boategrshop@gmail.com</p>
         </div>
       </div>`
   });
 
-  res.send(`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta http-equiv="refresh" content="3;url=${BASE_URL}/download"><style>
+  res.send(`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta http-equiv="refresh" content="3;url=${BASE_URL}/download?t=${order.approveToken}"><style>
     body{font-family:sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;background:#0a0a0a}
     .box{text-align:center;padding:48px;background:#1a1a1a;border-radius:20px;border:1px solid rgba(249,115,22,.3);max-width:400px;width:90%}
     h2{color:#f97316}p{color:#888}strong{color:#f1f1f1}
@@ -315,8 +315,15 @@ app.get('/approve/:token', async (req, res) => {
 
 });
 
-// ---------- DOWNLOAD ----------
-app.get('/download', (req, res) => res.sendFile(path.join(__dirname, 'public', 'download.html')));
+// ---------- DOWNLOAD (ต้องมี token ที่ approved แล้วเท่านั้น) ----------
+app.get('/download', (req, res) => {
+  const token = req.query.t;
+  if (!token) return res.redirect('/?error=noaccess');
+  const orders = readOrders();
+  const order = orders.find(o => o.approveToken === token && o.status === 'approved');
+  if (!order) return res.redirect('/?error=noaccess');
+  res.sendFile(path.join(__dirname, 'public', 'download.html'));
+});
 
 // ---------- ADMIN ----------
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
