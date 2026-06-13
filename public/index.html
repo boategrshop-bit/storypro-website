@@ -188,6 +188,9 @@
     .review-name { font-weight:700; font-size:14px; }
     .review-role { font-size:12px; color:var(--muted); margin-top:2px; }
 
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner { width:18px; height:18px; border:2px solid rgba(255,255,255,.3); border-top-color:white; border-radius:50%; animation:spin .7s linear infinite; display:inline-block; vertical-align:middle; }
+
     .fade-in { opacity:0; transform:translateY(30px); transition:opacity .6s,transform .6s; }
     .fade-in.visible { opacity:1; transform:translateY(0); }
 
@@ -595,7 +598,7 @@
   document.getElementById('orderForm').addEventListener('submit', async e => {
     e.preventDefault();
     const btn = document.getElementById('submitBtn');
-    btn.disabled = true; btn.innerHTML = '⏳ กำลังส่ง...';
+    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> กำลังส่ง... รอสักครู่นะครับ';
     try {
       const res = await fetch('/api/order', { method: 'POST', body: new FormData(e.target) });
       const data = await res.json();
