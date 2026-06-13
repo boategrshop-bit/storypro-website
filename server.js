@@ -235,6 +235,8 @@ app.post('/api/order', upload.single('slip'), async (req, res) => {
             </div>
             <div style="text-align:center">
               <a href="${approveLink}" style="background:#f97316;color:white;padding:14px 36px;border-radius:8px;text-decoration:none;font-size:17px;font-weight:bold;display:inline-block">✅ Approve ออเดอร์นี้</a>
+              <br/><br/>
+              <a href="${BASE_URL}/admin" style="background:#1e293b;color:white;padding:10px 24px;border-radius:8px;text-decoration:none;font-size:14px;display:inline-block">🔑 เข้า Admin Panel</a>
             </div>
           </div>
         </div>`,
@@ -342,6 +344,15 @@ app.get('/download', (req, res) => {
 // ---------- ADMIN ----------
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
 app.get('/api/orders', (req, res) => res.json(readOrders().reverse()));
+
+app.delete('/api/orders/:id', (req, res) => {
+  const orders = readOrders();
+  const idx = orders.findIndex(o => o.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ success: false });
+  orders.splice(idx, 1);
+  saveOrders(orders);
+  res.json({ success: true });
+});
 
 app.listen(PORT, () => {
   console.log(`\n🚀 Adpro: ${BASE_URL}`);

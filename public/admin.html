@@ -3,93 +3,85 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Admin Panel - Adpro By flowbanhere</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <title>Admin Panel - StoryPro by Flowbanhere</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Noto Sans Thai', sans-serif; background: #f9fafb; color: #1f2937; }
-    header {
-      background: linear-gradient(135deg, #f97316, #ea580c);
-      padding: 16px 28px; display: flex; align-items: center; justify-content: space-between;
-    }
-    header h1 { color: white; font-size: 20px; font-weight: 800; }
-    header p { color: #fff3e0; font-size: 13px; }
-    .stats {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 16px; padding: 24px 28px; max-width: 1000px; margin: 0 auto;
-    }
-    .stat-card {
-      background: white; border-radius: 12px; padding: 20px;
-      border: 1px solid #e5e7eb; text-align: center;
-    }
-    .stat-card .num { font-size: 36px; font-weight: 800; color: #f97316; }
-    .stat-card .label { font-size: 13px; color: #6b7280; margin-top: 4px; }
-    .orders-section { max-width: 1000px; margin: 0 auto; padding: 0 28px 40px; }
-    .orders-section h2 { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
-    .order-card {
-      background: white; border-radius: 14px; border: 1px solid #e5e7eb;
-      padding: 20px; margin-bottom: 14px;
-      display: grid; grid-template-columns: auto 1fr auto; gap: 20px; align-items: center;
-    }
-    .order-card.approved { border-left: 4px solid #22c55e; }
-    .order-card.pending { border-left: 4px solid #f97316; }
-    .slip-thumb {
-      width: 80px; height: 80px; object-fit: cover;
-      border-radius: 10px; border: 1px solid #e5e7eb;
-      cursor: pointer;
-    }
-    .order-info h3 { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
-    .order-info p { font-size: 13px; color: #6b7280; margin-bottom: 2px; }
-    .order-info .oid { font-family: monospace; font-size: 11px; color: #9ca3af; }
-    .badge {
-      display: inline-block; padding: 3px 10px; border-radius: 20px;
-      font-size: 12px; font-weight: 600; margin-top: 6px;
-    }
-    .badge.pending { background: #fff7ed; color: #ea580c; }
-    .badge.approved { background: #f0fdf4; color: #15803d; }
-    .approve-btn {
-      background: linear-gradient(135deg, #f97316, #ea580c);
-      color: white; border: none; padding: 10px 20px; border-radius: 8px;
-      font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit;
-      white-space: nowrap; transition: all .2s;
-    }
-    .approve-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(249,115,22,.4); }
-    .approved-label {
-      color: #22c55e; font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 6px;
-    }
-    .filter-bar {
-      display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;
-    }
-    .filter-btn {
-      padding: 8px 18px; border-radius: 20px; border: 1px solid #e5e7eb;
-      background: white; font-size: 13px; cursor: pointer; font-family: inherit;
-      transition: all .2s;
-    }
-    .filter-btn.active { background: #f97316; color: white; border-color: #f97316; }
-    .empty { text-align: center; padding: 60px; color: #9ca3af; }
-    .empty .icon { font-size: 48px; margin-bottom: 12px; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Noto Sans Thai',sans-serif; background:#f9fafb; color:#1f2937; }
 
-    /* Modal */
-    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 999; align-items: center; justify-content: center; }
-    .modal.open { display: flex; }
-    .modal img { max-width: 90vw; max-height: 90vh; border-radius: 12px; }
-    .modal-close { position: absolute; top: 20px; right: 24px; background: white; border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    /* LOGIN GATE */
+    #loginGate { position:fixed; inset:0; background:#0a0a0a; z-index:9999; display:flex; align-items:center; justify-content:center; }
+    .login-box { background:#1a1a1a; border:1px solid rgba(249,115,22,.3); border-radius:20px; padding:40px; text-align:center; width:320px; }
+    .login-box h2 { color:#f97316; font-size:22px; margin-bottom:6px; }
+    .login-box p { color:#888; font-size:13px; margin-bottom:24px; }
+    .login-box input { width:100%; padding:12px 16px; border:1px solid #2a2a2a; border-radius:10px; background:#111; color:#f1f1f1; font-size:15px; font-family:inherit; margin-bottom:12px; text-align:center; letter-spacing:4px; }
+    .login-box input:focus { outline:none; border-color:#f97316; }
+    .login-box button { width:100%; background:linear-gradient(135deg,#f97316,#ea580c); color:white; border:none; padding:13px; border-radius:10px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; }
+    .login-error { color:#ef4444; font-size:13px; margin-top:10px; display:none; }
+
+    header { background:linear-gradient(135deg,#f97316,#ea580c); padding:16px 28px; display:flex; align-items:center; justify-content:space-between; }
+    header h1 { color:white; font-size:20px; font-weight:800; }
+    header p { color:#fff3e0; font-size:13px; }
+    .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:16px; padding:24px 28px; max-width:1000px; margin:0 auto; }
+    .stat-card { background:white; border-radius:12px; padding:20px; border:1px solid #e5e7eb; text-align:center; }
+    .stat-card .num { font-size:36px; font-weight:800; color:#f97316; }
+    .stat-card .label { font-size:13px; color:#6b7280; margin-top:4px; }
+    .orders-section { max-width:1000px; margin:0 auto; padding:0 28px 40px; }
+    .orders-section h2 { font-size:18px; font-weight:700; margin-bottom:16px; }
+    .order-card { background:white; border-radius:14px; border:1px solid #e5e7eb; padding:20px; margin-bottom:14px; display:grid; grid-template-columns:auto 1fr auto; gap:20px; align-items:center; }
+    .order-card.approved { border-left:4px solid #22c55e; }
+    .order-card.pending { border-left:4px solid #f97316; }
+    .slip-thumb { width:80px; height:80px; object-fit:cover; border-radius:10px; border:1px solid #e5e7eb; cursor:pointer; }
+    .order-info h3 { font-size:16px; font-weight:700; margin-bottom:4px; }
+    .order-info p { font-size:13px; color:#6b7280; margin-bottom:2px; }
+    .order-info .oid { font-family:monospace; font-size:11px; color:#9ca3af; }
+    .badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:600; margin-top:6px; }
+    .badge.pending { background:#fff7ed; color:#ea580c; }
+    .badge.approved { background:#f0fdf4; color:#15803d; }
+    .btn-group { display:flex; flex-direction:column; gap:8px; align-items:flex-end; }
+    .approve-btn { background:linear-gradient(135deg,#f97316,#ea580c); color:white; border:none; padding:10px 20px; border-radius:8px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; white-space:nowrap; transition:all .2s; }
+    .approve-btn:hover { transform:translateY(-2px); box-shadow:0 4px 15px rgba(249,115,22,.4); }
+    .delete-btn { background:white; color:#ef4444; border:1px solid #fca5a5; padding:8px 16px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; white-space:nowrap; transition:all .2s; }
+    .delete-btn:hover { background:#fef2f2; }
+    .approved-label { color:#22c55e; font-weight:700; font-size:14px; display:flex; align-items:center; gap:6px; }
+    .filter-bar { display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap; }
+    .filter-btn { padding:8px 18px; border-radius:20px; border:1px solid #e5e7eb; background:white; font-size:13px; cursor:pointer; font-family:inherit; transition:all .2s; }
+    .filter-btn.active { background:#f97316; color:white; border-color:#f97316; }
+    .empty { text-align:center; padding:60px; color:#9ca3af; }
+    .empty .icon { font-size:48px; margin-bottom:12px; }
+    .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:999; align-items:center; justify-content:center; }
+    .modal.open { display:flex; }
+    .modal img { max-width:90vw; max-height:90vh; border-radius:12px; }
+    .modal-close { position:absolute; top:20px; right:24px; background:white; border:none; width:36px; height:36px; border-radius:50%; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
   </style>
 </head>
 <body>
+
+<!-- LOGIN GATE -->
+<div id="loginGate">
+  <div class="login-box">
+    <div style="font-size:48px;margin-bottom:12px">🔐</div>
+    <h2>Admin Panel</h2>
+    <p>StoryPro by Flowbanhere</p>
+    <input type="password" id="pwInput" placeholder="รหัสผ่าน" onkeydown="if(event.key==='Enter')checkPw()"/>
+    <button onclick="checkPw()">เข้าสู่ระบบ</button>
+    <div class="login-error" id="loginError">❌ รหัสผ่านไม่ถูกต้อง</div>
+  </div>
+</div>
+
 <header>
   <div>
     <h1>🔑 Admin Panel</h1>
-    <p>Adpro By flowbanhere</p>
+    <p>StoryPro by Flowbanhere</p>
   </div>
-  <div style="text-align:right">
+  <div style="text-align:right;display:flex;align-items:center;gap:12px">
     <div style="color:white;font-size:13px" id="lastUpdate">Loading...</div>
-    <button onclick="loadOrders()" style="background:rgba(255,255,255,.2);color:white;border:none;padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer;margin-top:4px;font-family:inherit">🔄 รีเฟรช</button>
+    <button onclick="loadOrders()" style="background:rgba(255,255,255,.2);color:white;border:none;padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer;font-family:inherit">🔄 รีเฟรช</button>
+    <button onclick="logout()" style="background:rgba(0,0,0,.25);color:white;border:none;padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer;font-family:inherit">ออกจากระบบ</button>
   </div>
 </header>
 
-<div class="stats" id="stats">
+<div class="stats">
   <div class="stat-card"><div class="num" id="statTotal">-</div><div class="label">ออเดอร์ทั้งหมด</div></div>
   <div class="stat-card"><div class="num" id="statPending">-</div><div class="label">รอ Approve</div></div>
   <div class="stat-card"><div class="num" id="statApproved">-</div><div class="label">Approve แล้ว</div></div>
@@ -99,9 +91,9 @@
 <div class="orders-section">
   <h2>📋 รายการออเดอร์</h2>
   <div class="filter-bar">
-    <button class="filter-btn active" onclick="setFilter('all', this)">ทั้งหมด</button>
-    <button class="filter-btn" onclick="setFilter('pending', this)">รอ Approve</button>
-    <button class="filter-btn" onclick="setFilter('approved', this)">Approve แล้ว</button>
+    <button class="filter-btn active" onclick="setFilter('all',this)">ทั้งหมด</button>
+    <button class="filter-btn" onclick="setFilter('pending',this)">รอ Approve</button>
+    <button class="filter-btn" onclick="setFilter('approved',this)">Approve แล้ว</button>
   </div>
   <div id="ordersList"><div class="empty"><div class="icon">⏳</div><p>กำลังโหลด...</p></div></div>
 </div>
@@ -112,17 +104,41 @@
 </div>
 
 <script>
+  const ADMIN_PW = 'Nongboat32';
+
+  function checkPw() {
+    const val = document.getElementById('pwInput').value;
+    if (val === ADMIN_PW) {
+      sessionStorage.setItem('admin_auth', '1');
+      document.getElementById('loginGate').style.display = 'none';
+      loadOrders();
+    } else {
+      document.getElementById('loginError').style.display = 'block';
+      document.getElementById('pwInput').value = '';
+    }
+  }
+
+  function logout() {
+    sessionStorage.removeItem('admin_auth');
+    location.reload();
+  }
+
+  if (sessionStorage.getItem('admin_auth') === '1') {
+    document.getElementById('loginGate').style.display = 'none';
+  }
+
   let allOrders = [];
   let currentFilter = 'all';
 
   async function loadOrders() {
+    if (sessionStorage.getItem('admin_auth') !== '1') return;
     try {
       const res = await fetch('/api/orders');
       allOrders = await res.json();
       updateStats();
       renderOrders();
       document.getElementById('lastUpdate').textContent = 'อัพเดตล่าสุด: ' + new Date().toLocaleTimeString('th-TH');
-    } catch { }
+    } catch {}
   }
 
   function updateStats() {
@@ -142,7 +158,7 @@
       return;
     }
     list.innerHTML = filtered.map(o => `
-      <div class="order-card ${o.status}">
+      <div class="order-card ${o.status}" id="card-${o.id}">
         <img class="slip-thumb" src="/uploads/${o.slipFile}" alt="สลิป" onclick="openModal('/uploads/${o.slipFile}')"/>
         <div class="order-info">
           <h3>${o.name}</h3>
@@ -152,10 +168,11 @@
           <div class="oid">ID: ${o.id}</div>
           <span class="badge ${o.status}">${o.status === 'pending' ? '⏳ รอ Approve' : '✅ Approve แล้ว'}</span>
         </div>
-        <div>
+        <div class="btn-group">
           ${o.status === 'pending'
             ? `<button class="approve-btn" onclick="approveOrder('${o.approveToken}')">✅ Approve</button>`
             : `<div class="approved-label">✅<span>Approved</span></div>`}
+          <button class="delete-btn" onclick="deleteOrder('${o.id}')">🗑️ ลบ</button>
         </div>
       </div>
     `).join('');
@@ -165,10 +182,16 @@
     if (!confirm('Approve ออเดอร์นี้? ระบบจะส่งลิงก์ให้ลูกค้าทางอีเมล')) return;
     try {
       const res = await fetch(`/approve/${token}`);
-      if (res.ok) {
-        alert('✅ Approve สำเร็จ! ส่งลิงก์ให้ลูกค้าแล้ว');
-        loadOrders();
-      }
+      if (res.ok) { alert('✅ Approve สำเร็จ! ส่งลิงก์ให้ลูกค้าแล้ว'); loadOrders(); }
+    } catch { alert('เกิดข้อผิดพลาด'); }
+  }
+
+  async function deleteOrder(id) {
+    if (!confirm('ลบออเดอร์นี้? ไม่สามารถย้อนกลับได้')) return;
+    try {
+      const res = await fetch(`/api/orders/${id}`, { method: 'DELETE' });
+      if (res.ok) { loadOrders(); }
+      else { alert('เกิดข้อผิดพลาด'); }
     } catch { alert('เกิดข้อผิดพลาด'); }
   }
 
@@ -185,8 +208,8 @@
   }
   function closeModal() { document.getElementById('slipModal').classList.remove('open'); }
 
-  loadOrders();
-  setInterval(loadOrders, 30000);
+  if (sessionStorage.getItem('admin_auth') === '1') loadOrders();
+  setInterval(() => { if (sessionStorage.getItem('admin_auth') === '1') loadOrders(); }, 30000);
 </script>
 </body>
 </html>
