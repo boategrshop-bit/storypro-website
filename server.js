@@ -1,7 +1,6 @@
 require('dotenv').config();
 const express = require('express');
 const multer = require('multer');
-const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
@@ -39,23 +38,30 @@ const upload = multer({
 });
 
 // ---------- EMAIL ----------
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.GMAIL_USER,
-    pass: (process.env.GMAIL_APP_PASSWORD || '').replace(/\s/g, '')
-  },
-  tls: { rejectUnauthorized: false }
-});
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx7q8DMEA_gZqVICFFpLdSw23PulgLtcztcXsr1DlMILjDZcanRtspfi0TELoczs3ZK/exec';
 
-// Test SMTP on startup
-transporter.verify().then(() => {
-  console.log('✅ SMTP ready');
-}).catch(e => {
-  console.error('❌ SMTP error:', e.message);
-});
+async function sendEmail(data) {
+  try {
+    const https = require('https');
+    const body = JSON.stringify(data);
+    const url = new URL(APPS_SCRIPT_URL);
+    return new Promise((resolve) => {
+      const req = https.request({
+        hostname: url.hostname,
+        path: url.pathname + url.search,
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) }
+      }, (res) => {
+        let raw = '';
+        res.on('data', d => raw += d);
+        res.on('end', () => { console.log('📧 Email sent:', raw); resolve(true); });
+      });
+      req.on('error', e => { console.error('❌ Email error:', e.message); resolve(false); });
+      req.write(body);
+      req.end();
+    });
+  } catch(e) { console.error('❌ Email error:', e.message); return false; }
+}
 
 // ---------- SESSION ----------
 app.use(session({
@@ -226,38 +232,16 @@ app.post('/api/order', upload.single('slip'), async (req, res) => {
     appendOrderToSheet(order).catch(e => console.error('Sheet error:', e.message));
 
     const approveLink = `${BASE_URL}/approve/${order.approveToken}`;
-    await transporter.sendMail({
-      from: `"StoryPro System" <${process.env.GMAIL_USER}>`,
-      to: process.env.ADMIN_EMAIL,
-      subject: `🛒 ออเดอร์ใหม่ - ${name} | StoryPro`,
-      html: `
-        <div style="font-family:sans-serif;max-width:580px;margin:0 auto">
-          <div style="background:#f97316;padding:20px;text-align:center;border-radius:8px 8px 0 0">
-            <h2 style="color:white;margin:0">🎉 ออเดอร์ใหม่!</h2>
-          </div>
-          <div style="background:#fff;padding:28px;border:1px solid #fed7aa;border-radius:0 0 8px 8px">
-            <table style="width:100%;border-collapse:collapse">
-              <tr><td style="padding:8px;color:#888">ชื่อ:</td><td style="padding:8px;font-weight:bold">${name}</td></tr>
-              <tr style="background:#fff7ed"><td style="padding:8px;color:#888">อีเมล:</td><td style="padding:8px;font-weight:bold">${email}</td></tr>
-              <tr><td style="padding:8px;color:#888">Google:</td><td style="padding:8px">${order.googleEmail || '-'}</td></tr>
-              <tr style="background:#fff7ed"><td style="padding:8px;color:#888">เบอร์:</td><td style="padding:8px">${phone || '-'}</td></tr>
-            </table>
-            <div style="text-align:center;margin:20px 0">
-              <p style="color:#888;font-size:13px;margin-bottom:8px">📎 สลิปโอนเงิน (แนบมาด้านล่าง)</p>
-              <img src="cid:slip_image" style="max-width:300px;border-radius:8px;border:2px solid #fed7aa"/>
-            </div>
-            <div style="text-align:center">
-              <a href="${approveLink}" style="background:#f97316;color:white;padding:14px 36px;border-radius:8px;text-decoration:none;font-size:17px;font-weight:bold;display:inline-block">✅ Approve ออเดอร์นี้</a>
-              <br/><br/>
-              <a href="${BASE_URL}/admin" style="background:#1e293b;color:white;padding:10px 24px;border-radius:8px;text-decoration:none;font-size:14px;display:inline-block">🔑 เข้า Admin Panel</a>
-            </div>
-          </div>
-        </div>`,
-      attachments: [{
-        filename: req.file.originalname || 'slip.jpg',
-        path: req.file.path,
-        cid: 'slip_image'
-      }]
+    sendEmail({
+      type: 'new_order',
+      name: order.name,
+      email: order.email,
+      phone: order.phone,
+      googleEmail: order.googleEmail,
+      orderId: order.id,
+      slipUrl: `${BASE_URL}/uploads/${order.slipFile}`,
+      approveLink,
+      adminLink: `${BASE_URL}/admin`
     }).catch(e => console.error('Email error:', e.message));
 
   } catch(err) {
@@ -280,56 +264,12 @@ app.get('/approve/:token', async (req, res) => {
   saveOrders(orders);
   await updateSheetApproved(order);
 
-  await transporter.sendMail({
-    from: `"StoryPro by Flowbanhere" <${process.env.GMAIL_USER}>`,
-    to: order.email,
-    subject: `✅ ยืนยันการชำระเงิน - รับลิงก์ StoryPro Ver 4 ได้เลย!`,
-    html: `
-      <div style="font-family:sans-serif;max-width:580px;margin:0 auto">
-        <div style="background:linear-gradient(135deg,#f97316,#ea580c);padding:28px;text-align:center;border-radius:8px 8px 0 0">
-          <h1 style="color:white;margin:0;font-size:22px">🎊 ยืนยันการชำระเงินแล้ว!</h1>
-          <p style="color:rgba(255,255,255,.85);margin:8px 0 0;font-size:14px">StoryPro by Flowbanhere — Ver 4</p>
-        </div>
-        <div style="background:#fff;padding:28px;border:1px solid #fed7aa;border-radius:0 0 8px 8px">
-          <p style="font-size:15px">สวัสดี <strong>${order.name}</strong> 👋 ขอบคุณที่ใช้บริการครับ!</p>
-
-          <!-- 1. Program link -->
-          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin:20px 0">
-            <p style="font-weight:800;font-size:15px;margin:0 0 8px;color:#1e293b">🤖 1. ลิงก์โปรแกรม StoryPro Ver 4</p>
-            <div style="background:#fff;border:1px dashed #f97316;border-radius:8px;padding:12px;word-break:break-all;font-size:13px;color:#f97316;margin-bottom:10px">${PRODUCT_LINK}</div>
-            <p style="font-size:12px;color:#64748b;margin:0">⚠️ <strong>วิธีเปิด:</strong> ก็อปปี้ลิงก์ข้างบน → เปิด Google Chrome → วางในแถบ Address แล้วกด Enter<br/><strong>ใช้ได้บน Computer เท่านั้น</strong></p>
-          </div>
-
-          <!-- 2. Tutorial -->
-          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin:20px 0">
-            <p style="font-weight:800;font-size:15px;margin:0 0 12px;color:#1e293b">▶️ 2. คลิปสอนการใช้งาน</p>
-            <a href="${TUTORIAL_LINK}" style="background:#ef4444;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:bold;display:inline-block">▶ ดูคลิปสอน</a>
-          </div>
-
-          <!-- 3. Line group -->
-          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin:20px 0">
-            <p style="font-weight:800;font-size:15px;margin:0 0 8px;color:#1e293b">💬 3. ไลน์กลุ่ม Community</p>
-            <p style="font-size:13px;color:#64748b;margin:0 0 12px">StoryPro by Flowบ้านเฮีย — ช่วยเหลือกัน เฮียตอบไว</p>
-            <a href="${LINE_GROUP_LINK}" style="background:#06c755;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:bold;display:inline-block">💬 เข้ากลุ่มไลน์</a>
-          </div>
-
-          <!-- Rules -->
-          <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:20px;margin:20px 0">
-            <p style="font-weight:800;font-size:14px;margin:0 0 12px;color:#ea580c">📋 กฎกติกาการใช้งาน</p>
-            <ul style="font-size:13px;color:#6b7280;padding-left:18px;line-height:2">
-              <li>ห้ามดัดแปลง ทำซ้ำ หรือนำไปแจกจ่าย ขายต่อ</li>
-              <li>หากมีปัญหาการใช้งานทักส่วนตัวเท่านั้น</li>
-              <li>ก่อดราม่าในกลุ่มรวม เตะออกทุกกรณี</li>
-            </ul>
-          </div>
-
-          <div style="text-align:center;margin-top:24px">
-            <a href="${BASE_URL}/download?t=${order.approveToken}" style="background:linear-gradient(135deg,#f97316,#ea580c);color:white;padding:14px 32px;border-radius:10px;text-decoration:none;font-size:15px;font-weight:bold;display:inline-block">🚀 เข้าหน้าดาวน์โหลด</a>
-          </div>
-          <p style="color:#9ca3af;font-size:12px;text-align:center;margin-top:20px">ติดต่อ: boategrshop@gmail.com</p>
-        </div>
-      </div>`
-  });
+  sendEmail({
+    type: 'approve',
+    name: order.name,
+    email: order.email,
+    downloadLink: `${BASE_URL}/download?t=${order.approveToken}`
+  }).catch(e => console.error('Email error:', e.message));
 
   res.send(`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta http-equiv="refresh" content="3;url=${BASE_URL}/download?t=${order.approveToken}"><style>
     body{font-family:sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;background:#0a0a0a}
