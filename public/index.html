@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>StoryPro by Flowbanhere - สร้างคลิปขายสินค้าด้วย AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --orange: #f97316;
+      --orange-dark: #ea580c;
+      --bg: #0a0a0a;
+      --bg2: #111111;
+      --bg3: #1a1a1a;
+      --border: #2a2a2a;
+      --text: #f1f1f1;
+      --muted: #888;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Noto Sans Thai', sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(10,10,10,0.93); backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 24px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo { font-size: 20px; font-weight: 800; background: linear-gradient(135deg,#f97316,#fb923c); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .nav-logo span { -webkit-text-fill-color: #666; font-weight: 400; font-size: 13px; margin-left: 6px; }
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+    .nav-user { display: none; align-items: center; gap: 8px; }
+    .nav-avatar { width: 30px; height: 30px; border-radius: 50%; border: 2px solid #f97316; }
+    .nav-name { font-size: 13px; color: var(--text); font-weight: 600; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .nav-logout { font-size: 12px; color: var(--muted); text-decoration: none; padding: 4px 10px; border: 1px solid var(--border); border-radius: 20px; transition: all .2s; }
+    .nav-logout:hover { color: #f97316; border-color: #f97316; }
+    .nav-btn { background: linear-gradient(135deg,#f97316,#ea580c); color: white; padding: 10px 22px; border-radius: 25px; text-decoration: none; font-weight: 700; font-size: 14px; transition: all .3s; box-shadow: 0 4px 20px rgba(249,115,22,.5); }
+    .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(249,115,22,.65); }
+
+    /* HERO */
+    .hero { min-height: 100vh; background: var(--bg); display: flex; align-items: center; padding: 100px 24px 60px; position: relative; overflow: hidden; }
+    .hero::before { content:''; position:absolute; top:-200px; right:-100px; width:700px; height:700px; background:radial-gradient(circle,rgba(249,115,22,.15) 0%,transparent 65%); border-radius:50%; pointer-events:none; }
+    .hero::after { content:''; position:absolute; bottom:-200px; left:-150px; width:500px; height:500px; background:radial-gradient(circle,rgba(234,88,12,.08) 0%,transparent 65%); border-radius:50%; pointer-events:none; }
+    .hero-inner { max-width: 1100px; margin: 0 auto; width: 100%; display: flex; align-items: center; gap: 60px; position: relative; z-index: 1; }
+    .hero-text { flex: 1; }
+    .hero-badge { display:inline-flex; align-items:center; gap:8px; background:rgba(249,115,22,.12); border:1px solid rgba(249,115,22,.3); color:#fb923c; padding:6px 16px; border-radius:20px; font-size:13px; font-weight:600; margin-bottom:20px; }
+    h1 { font-size: clamp(34px,5vw,58px); font-weight: 800; line-height: 1.15; margin-bottom: 16px; }
+    h1 .highlight { background: linear-gradient(135deg,#f97316,#fb923c); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .hero-sub { font-size: 17px; color: var(--muted); line-height: 1.9; margin-bottom: 32px; max-width: 500px; }
+    .hero-cta { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
+    .btn-primary { background:linear-gradient(135deg,#f97316,#ea580c); color:white; padding:16px 36px; border-radius:50px; text-decoration:none; font-weight:700; font-size:16px; transition:all .3s; box-shadow:0 6px 30px rgba(249,115,22,.5); display:inline-flex; align-items:center; gap:8px; }
+    .btn-primary:hover { transform:translateY(-3px); box-shadow:0 12px 40px rgba(249,115,22,.65); }
+    .btn-secondary { color:#f97316; padding:16px 28px; border-radius:50px; text-decoration:none; font-weight:600; font-size:15px; border:2px solid rgba(249,115,22,.4); transition:all .3s; display:inline-flex; align-items:center; gap:8px; }
+    .btn-secondary:hover { background:rgba(249,115,22,.1); border-color:#f97316; }
+    .hero-price-tag { margin-top: 28px; display: flex; align-items: center; gap: 16px; }
+    .price-save { background:linear-gradient(135deg,#f97316,#ea580c); color:white; font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; margin-bottom:4px; display:inline-block; }
+    .price-main { font-size: 46px; font-weight: 800; color: #f97316; line-height: 1; }
+    .price-old { font-size: 20px; color: var(--muted); text-decoration: line-through; font-weight: 500; margin-left: 8px; vertical-align: middle; }
+    .price-sub { color: var(--muted); font-size: 13px; line-height: 1.5; }
+
+    /* MOCKUP */
+    .hero-visual { flex: 1; display: flex; justify-content: center; }
+    .mockup-card { background:var(--bg3); border-radius:20px; box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 0 1px rgba(249,115,22,.2); padding:24px; max-width:400px; width:100%; }
+    .mockup-header { display:flex; align-items:center; gap:10px; margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid var(--border); }
+    .mockup-dot { width:10px; height:10px; border-radius:50%; }
+    .mockup-title { font-weight:700; font-size:14px; color:var(--text); }
+    .step-item { display:flex; align-items:center; gap:14px; padding:12px 14px; border-radius:10px; margin-bottom:8px; background:rgba(249,115,22,.07); border:1px solid rgba(249,115,22,.12); transition:all .3s; }
+    .step-item:hover { background:rgba(249,115,22,.15); transform:translateX(4px); }
+    .step-num { width:30px; height:30px; border-radius:50%; background:linear-gradient(135deg,#f97316,#ea580c); color:white; font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .step-text { font-size:13px; color:#d1d5db; font-weight:500; }
+    .mockup-btn { margin-top:16px; width:100%; background:linear-gradient(135deg,#f97316,#ea580c); color:white; border:none; padding:14px; border-radius:10px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 4px 20px rgba(249,115,22,.4); }
+    .ai-badge { background:linear-gradient(135deg,#7c3aed,#4f46e5); color:white; font-size:10px; padding:2px 8px; border-radius:10px; }
+
+    /* SECTION */
+    .section { padding: 80px 24px; }
+    .section-title { text-align:center; margin-bottom:60px; }
+    .section-title .label { display:inline-block; background:rgba(249,115,22,.12); color:#fb923c; padding:4px 14px; border-radius:20px; font-size:13px; font-weight:600; margin-bottom:12px; border:1px solid rgba(249,115,22,.25); }
+    .section-title h2 { font-size:clamp(26px,4vw,40px); font-weight:800; }
+    .section-title p { color:var(--muted); margin-top:10px; font-size:16px; }
+    .features-bg { background: var(--bg2); }
+
+    /* STEPS */
+    .steps-grid { max-width:900px; margin:0 auto; display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:20px; }
+    .step-card { background:var(--bg3); border:1px solid var(--border); border-radius:16px; padding:28px 20px; text-align:center; transition:all .3s; position:relative; }
+    .step-card:hover { transform:translateY(-6px); box-shadow:0 12px 35px rgba(249,115,22,.2); border-color:rgba(249,115,22,.4); }
+    .step-card .num { position:absolute; top:-14px; left:50%; transform:translateX(-50%); background:linear-gradient(135deg,#f97316,#ea580c); color:white; width:28px; height:28px; border-radius:50%; font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center; }
+    .step-icon { font-size:36px; margin-bottom:12px; }
+    .step-card h3 { font-size:14px; font-weight:700; margin-bottom:6px; }
+    .step-card p { font-size:12px; color:var(--muted); line-height:1.6; }
+
+    /* FEATURES */
+    .features-grid { max-width:1000px; margin:0 auto; display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:24px; }
+    .feature-card { background:var(--bg3); border-radius:16px; padding:30px 24px; border:1px solid var(--border); transition:all .3s; }
+    .feature-card:hover { transform:translateY(-4px); box-shadow:0 10px 30px rgba(249,115,22,.15); border-color:rgba(249,115,22,.3); }
+    .feature-icon { width:52px; height:52px; background:rgba(249,115,22,.1); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:24px; margin-bottom:16px; border:1px solid rgba(249,115,22,.2); }
+    .feature-card h3 { font-size:16px; font-weight:700; margin-bottom:8px; }
+    .feature-card p { font-size:14px; color:var(--muted); line-height:1.7; }
+
+    /* PRICING */
+    .pricing-card { max-width:480px; margin:0 auto; background:var(--bg3); border-radius:24px; border:1px solid rgba(249,115,22,.35); padding:40px; text-align:center; box-shadow:0 0 60px rgba(249,115,22,.12),inset 0 1px 0 rgba(249,115,22,.2); position:relative; overflow:hidden; }
+    .pricing-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,#f97316,#fb923c,#f97316); }
+    .pricing-popular { display:inline-block; background:linear-gradient(135deg,#f97316,#ea580c); color:white; padding:4px 16px; border-radius:20px; font-size:12px; font-weight:700; margin-bottom:20px; }
+    .pricing-name { font-size:22px; font-weight:800; margin-bottom:16px; }
+    .pricing-prices { display:flex; align-items:flex-end; justify-content:center; gap:14px; margin-bottom:8px; }
+    .pricing-old { font-size:28px; color:#555; text-decoration:line-through; font-weight:600; margin-bottom:6px; }
+    .pricing-amount { font-size:72px; font-weight:800; line-height:1; background:linear-gradient(135deg,#f97316,#fb923c); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .pricing-amount span { font-size:26px; }
+    .pricing-save-badge { display:inline-block; background:rgba(249,115,22,.15); border:1px solid rgba(249,115,22,.3); color:#fb923c; padding:3px 12px; border-radius:20px; font-size:12px; font-weight:700; margin-bottom:6px; }
+    .pricing-period { color:var(--muted); margin-bottom:30px; font-size:14px; }
+    .pricing-list { list-style:none; text-align:left; margin-bottom:32px; }
+    .pricing-list li { padding:10px 0; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:10px; font-size:15px; color:#d1d5db; }
+    .pricing-list li::before { content:'✅'; flex-shrink:0; }
+
+    /* PAYMENT */
+    .payment-grid { max-width:900px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:32px; }
+    @media(max-width:700px){ .payment-grid{grid-template-columns:1fr;} }
+    .bank-card,.upload-card { background:var(--bg3); border-radius:20px; border:1px solid var(--border); padding:32px; }
+    .bank-card h3,.upload-card h3 { font-size:18px; font-weight:700; margin-bottom:24px; color:#f97316; }
+    .bank-info { background:rgba(249,115,22,.06); border:1px solid rgba(249,115,22,.12); border-radius:12px; padding:16px; margin-bottom:10px; }
+    .bank-info .label { font-size:12px; color:var(--muted); margin-bottom:4px; }
+    .bank-info .value { font-size:18px; font-weight:700; }
+    .bank-info .value.big { font-size:26px; color:#f97316; letter-spacing:2px; }
+    .bank-name { display:flex; align-items:center; gap:10px; margin-bottom:18px; }
+    .bank-logo { width:40px; height:40px; border-radius:10px; background:linear-gradient(135deg,#1a9e3f,#158a36); display:flex; align-items:center; justify-content:center; color:white; font-weight:800; font-size:16px; }
+    .bank-name-text { font-weight:700; font-size:16px; }
+    .bank-name-text span { display:block; font-size:12px; color:var(--muted); font-weight:400; }
+
+    /* GOOGLE LOGIN SECTION */
+    .auth-gate { margin-bottom:20px; }
+    .login-box { background:rgba(249,115,22,.06); border:1px dashed rgba(249,115,22,.35); border-radius:14px; padding:24px; text-align:center; }
+    .login-box p { color:var(--muted); font-size:14px; margin-bottom:16px; line-height:1.7; }
+    .google-login-btn { display:inline-flex; align-items:center; gap:10px; background:white; color:#374151; padding:13px 24px; border-radius:10px; text-decoration:none; font-weight:700; font-size:14px; box-shadow:0 2px 12px rgba(0,0,0,.25); transition:all .2s; border:1px solid #e5e7eb; }
+    .google-login-btn:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(0,0,0,.3); }
+    .google-icon { width:20px; height:20px; }
+    .user-logged-box { background:rgba(34,197,94,.07); border:1px solid rgba(34,197,94,.25); border-radius:14px; padding:14px 18px; display:flex; align-items:center; justify-content:space-between; }
+    .user-info-left { display:flex; align-items:center; gap:12px; }
+    .user-photo { width:40px; height:40px; border-radius:50%; border:2px solid #f97316; object-fit:cover; }
+    .user-photo-placeholder { width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg,#f97316,#ea580c); display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:700; color:white; }
+    .user-display-name { font-weight:700; font-size:14px; }
+    .user-display-email { font-size:12px; color:var(--muted); margin-top:1px; }
+    .logout-link { font-size:12px; color:var(--muted); text-decoration:none; padding:6px 12px; border:1px solid var(--border); border-radius:20px; transition:all .2s; white-space:nowrap; }
+    .logout-link:hover { color:#f97316; border-color:#f97316; }
+
+    /* FORM */
+    .form-group { margin-bottom:14px; }
+    .form-group label { display:block; font-size:13px; font-weight:600; margin-bottom:6px; color:#d1d5db; }
+    .form-group input { width:100%; padding:12px 16px; border:1px solid var(--border); border-radius:10px; font-size:14px; font-family:inherit; background:var(--bg2); color:var(--text); transition:border-color .3s; }
+    .form-group input:focus { outline:none; border-color:#f97316; box-shadow:0 0 0 3px rgba(249,115,22,.15); }
+    .upload-area { border:2px dashed rgba(249,115,22,.3); border-radius:12px; padding:28px; text-align:center; cursor:pointer; transition:all .3s; background:rgba(249,115,22,.04); }
+    .upload-area:hover,.upload-area.drag { border-color:#f97316; background:rgba(249,115,22,.08); }
+    .upload-area p { font-size:14px; color:var(--muted); }
+    .upload-area strong { color:#f97316; }
+    #slipInput { display:none; }
+    .preview-img { max-width:100%; border-radius:10px; margin-top:12px; display:none; border:1px solid var(--border); }
+    .submit-btn { width:100%; background:linear-gradient(135deg,#f97316,#ea580c); color:white; border:none; padding:16px; border-radius:12px; font-size:16px; font-weight:700; cursor:pointer; font-family:inherit; transition:all .3s; margin-top:8px; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 6px 24px rgba(249,115,22,.4); }
+    .submit-btn:hover { transform:translateY(-2px); box-shadow:0 10px 32px rgba(249,115,22,.55); }
+    .submit-btn:disabled { opacity:.6; cursor:not-allowed; transform:none; }
+    .success-msg { display:none; background:rgba(34,197,94,.1); border:1px solid rgba(34,197,94,.3); border-radius:12px; padding:24px; margin-top:16px; text-align:center; }
+    .success-msg .icon { font-size:40px; margin-bottom:10px; }
+    .success-msg p { color:#4ade80; font-size:16px; font-weight:700; }
+    .success-msg small { color:#86efac; font-size:13px; }
+
+    /* FAQ */
+    .faq-list { max-width:700px; margin:0 auto; }
+    .faq-item { background:var(--bg3); border:1px solid var(--border); border-radius:12px; margin-bottom:10px; overflow:hidden; }
+    .faq-q { padding:18px 24px; font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center; user-select:none; transition:background .2s; }
+    .faq-q:hover { background:rgba(249,115,22,.07); }
+    .faq-q .arrow { color:#f97316; transition:transform .3s; font-size:18px; }
+    .faq-q.open .arrow { transform:rotate(180deg); }
+    .faq-a { max-height:0; overflow:hidden; transition:max-height .4s ease; color:var(--muted); font-size:14px; line-height:1.8; }
+    .faq-a.open { max-height:200px; }
+    .faq-a p { padding:0 24px 18px; }
+
+    footer { background:#050505; color:var(--muted); padding:40px 24px; text-align:center; border-top:1px solid var(--border); }
+    .footer-logo { font-size:22px; font-weight:800; background:linear-gradient(135deg,#f97316,#fb923c); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:12px; }
+    footer p { font-size:14px; line-height:1.8; }
+    footer a { color:#f97316; text-decoration:none; }
+
+    /* REVIEWS */
+    .review-card { background:var(--bg3); border:1px solid var(--border); border-radius:16px; padding:26px; display:flex; flex-direction:column; gap:14px; transition:all .3s; }
+    .review-card:hover { transform:translateY(-4px); box-shadow:0 10px 30px rgba(249,115,22,.12); border-color:rgba(249,115,22,.25); }
+    .review-stars { color:#f97316; font-size:16px; letter-spacing:2px; }
+    .review-text { color:#d1d5db; font-size:14px; line-height:1.85; flex:1; }
+    .review-author { display:flex; align-items:center; gap:12px; padding-top:14px; border-top:1px solid var(--border); }
+    .review-avatar { width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-weight:700; font-size:16px; flex-shrink:0; }
+    .review-name { font-weight:700; font-size:14px; }
+    .review-role { font-size:12px; color:var(--muted); margin-top:2px; }
+
+    .fade-in { opacity:0; transform:translateY(30px); transition:opacity .6s,transform .6s; }
+    .fade-in.visible { opacity:1; transform:translateY(0); }
+
+    @media(max-width:768px){
+      .hero-inner{flex-direction:column;text-align:center;}
+      .hero-cta{justify-content:center;}
+      .hero-price-tag{justify-content:center;}
+      .hero-sub{margin:0 auto 32px;}
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">StoryPro<span>by Flowbanhere</span></div>
+  <div class="nav-right">
+    <div class="nav-user" id="navUser">
+      <img class="nav-avatar" id="navAvatar" src="" alt=""/>
+      <span class="nav-name" id="navName"></span>
+      <a href="/auth/logout" class="nav-logout">ออกจากระบบ</a>
+    </div>
+    <a href="#payment" class="nav-btn">ซื้อเลย 349฿</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-inner">
+    <div class="hero-text">
+      <div class="hero-badge">✨ ตัวช่วยสร้างคลิปสินค้าด้วย AI</div>
+      <h1>สร้างคลิปขายสินค้า<br/><span class="highlight">ได้คลิปเร็ว ปักตะกร้าได้เลย</span></h1>
+      <p class="hero-sub">ด้วย Google Flow + AI Director<br/>แค่อัพรูปสินค้า เลือกนายแบบ เลือกฉาก<br/>ระบบคิดบทขายให้เอง 🔥</p>
+      <div class="hero-cta">
+        <a href="#how" class="btn-primary">🎬 ดูวิธีใช้งาน</a>
+        <a href="#payment" class="btn-secondary">💳 ซื้อเลย</a>
+      </div>
+      <div class="hero-price-tag">
+        <div>
+          <div><span class="price-save">ลด 65%</span></div>
+          <div style="display:flex;align-items:baseline;gap:4px;margin-top:4px">
+            <span class="price-main">349฿</span>
+            <span class="price-old">999฿</span>
+          </div>
+        </div>
+        <div class="price-sub">จ่ายครั้งเดียว<br/><strong style="color:#f97316">ใช้ได้ตลอด</strong></div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="mockup-card">
+        <div class="mockup-header">
+          <div class="mockup-dot" style="background:#ff5f57"></div>
+          <div class="mockup-dot" style="background:#febc2e"></div>
+          <div class="mockup-dot" style="background:#28c840"></div>
+          <div class="mockup-title">StoryPro by Flowbanhere</div>
+          <span class="ai-badge">AI</span>
+        </div>
+        <!-- scene preview strip -->
+        <div style="display:flex;gap:6px;margin-bottom:14px">
+          <div style="flex:1;height:64px;background:#111;border-radius:8px;border:1px solid #2a2a2a;display:flex;align-items:center;justify-content:center;font-size:10px;color:#555">ฉากที่ 1</div>
+          <div style="flex:1;height:64px;background:#111;border-radius:8px;border:1px solid #2a2a2a;display:flex;align-items:center;justify-content:center;font-size:10px;color:#555">ฉากที่ 2</div>
+          <div style="flex:1;height:64px;background:#111;border-radius:8px;border:1px solid #2a2a2a;display:flex;align-items:center;justify-content:center;font-size:10px;color:#555">ฉากที่ 3</div>
+        </div>
+        <!-- 3 real buttons -->
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <button style="width:100%;background:linear-gradient(135deg,#7c3aed,#4f46e5);color:white;border:none;padding:11px 16px;border-radius:9px;font-size:13px;font-weight:700;cursor:default;font-family:inherit;display:flex;align-items:center;gap:8px">
+            <span style="font-size:16px">🤖</span> AI Director <span style="font-size:11px;opacity:.8;margin-left:auto">สร้างเรื่องทั้งหมด</span>
+          </button>
+          <button style="width:100%;background:linear-gradient(135deg,#f97316,#ea580c);color:white;border:none;padding:11px 16px;border-radius:9px;font-size:13px;font-weight:700;cursor:default;font-family:inherit;display:flex;align-items:center;gap:8px">
+            <span style="font-size:16px">🎬</span> สร้างวีดีโอทั้งหมด
+          </button>
+          <button style="width:100%;background:#1e293b;color:#94a3b8;border:1px solid #334155;padding:11px 16px;border-radius:9px;font-size:13px;font-weight:700;cursor:default;font-family:inherit;display:flex;align-items:center;gap:8px">
+            <span style="font-size:16px">📥</span> ต่อฉาก <span style="font-size:11px;opacity:.7;margin-left:auto">Combine All</span>
+          </button>
+        </div>
+        <button class="mockup-btn" style="margin-top:14px" onclick="document.getElementById('payment').scrollIntoView({behavior:'smooth'})">🚀 เริ่มใช้งาน</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section features-bg" id="how">
+  <div class="section-title fade-in">
+    <div class="label">วิธีใช้งาน</div>
+    <h2>ง่ายๆ แค่ <span style="color:#f97316">3 ขั้นตอน</span></h2>
+    <p>ไม่ต้องมีความรู้ตัดต่อ ไม่ต้องเขียนบทเอง</p>
+  </div>
+  <div class="steps-grid" style="grid-template-columns:repeat(3,1fr);max-width:700px">
+    <div class="step-card fade-in"><div class="num">1</div><div class="step-icon">✍️</div><h3>กดปุ่มสร้างบท</h3><p>AI คิดบทขายสินค้าให้อัตโนมัติ ไม่ต้องเขียนเอง</p></div>
+    <div class="step-card fade-in"><div class="num">2</div><div class="step-icon">🎬</div><h3>กดปุ่มสร้างวีดีโอ</h3><p>ระบบสร้างคลิปสินค้าพร้อมนายแบบและฉากหลังให้เลย</p></div>
+    <div class="step-card fade-in"><div class="num">3</div><div class="step-icon">📥</div><h3>รวมซีนลงเครื่อง</h3><p>รวมทุกซีนแล้วดาวน์โหลด พร้อมปักตะกร้าได้ทันที</p></div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section" id="features">
+  <div class="section-title fade-in">
+    <div class="label">ฟีเจอร์เด็ด</div>
+    <h2>ทำไมต้อง <span style="color:#f97316">StoryPro?</span></h2>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card fade-in"><div class="feature-icon">🌱</div><h3>เหมาะสำหรับมือใหม่</h3><p>ไม่ต้องมีประสบการณ์ด้านวิดีโอหรือ AI เลยก็ทำได้ทันที</p></div>
+    <div class="feature-card fade-in"><div class="feature-icon">💬</div><h3>พรอมพ์ง่าย เหมือนคุยกับเพื่อน</h3><p>แค่บอกว่าอยากได้อะไร ระบบเข้าใจและจัดการให้เองทุกอย่าง</p></div>
+    <div class="feature-card fade-in"><div class="feature-icon">📦</div><h3>สินค้าตรงปก ไม่เพี้ยน</h3><p>แนบภาพนายแบบ/นางแบบเองได้ หรือให้ AI เจนให้ก็ได้เลย</p></div>
+    <div class="feature-card fade-in"><div class="feature-icon">🔗</div><h3>ต่อฉากอัตโนมัติ</h3><p>รวมทุกซีนเป็นคลิปเดียวให้อัตโนมัติ ไม่ต้องตัดต่อเอง</p></div>
+    <div class="feature-card fade-in"><div class="feature-icon">✍️</div><h3>คิดบทขายให้อัตโนมัติ</h3><p>AI เขียนสคริปต์ขายสินค้าให้เอง ปรับแก้ได้ตามใจ</p></div>
+    <div class="feature-card fade-in"><div class="feature-icon">🏙️</div><h3>ฉากหลังมากมาย + อัพโหลดเองได้</h3><p>มีฉากให้เลือกเพียบ หรือจะอัพโหลดรูปฉากหลังของตัวเองก็ได้</p></div>
+    <div class="feature-card fade-in"><div class="feature-icon">🎬</div><h3>ทำได้ถึง 30 ซีน</h3><p>สร้างคลิปยาวได้ในโปรเจคเดียว เหมาะทั้งคลิปสั้นและเล่าเรื่องยาว</p></div>
+    <div class="feature-card fade-in"><div class="feature-icon">🎭</div><h3>หลากหลายโหมด</h3><p>สายปักตะกร้า • เล่าเรื่อง • POV • การ์ตูน • ละคร • เรื่องเล่า ครบทุกสไตล์</p></div>
+    <div class="feature-card fade-in"><div class="feature-icon">🔄</div><h3>อัพเดตบ่อย อัพเดตฟรี ใช้ได้ตลอดชีพ</h3><p>จ่ายครั้งเดียว ฟีเจอร์ใหม่มาเรื่อยๆ ไม่มีค่าใช้จ่ายเพิ่ม</p></div>
+    <div class="feature-card fade-in"><div class="feature-icon">💛</div><h3>Community ที่น่ารัก</h3><p>มีไลน์กลุ่มคอมมูนิตี้ ช่วยเหลือกัน เฮียตอบไว ไม่ทิ้งกัน</p></div>
+  </div>
+</section>
+
+<!-- REQUIREMENT -->
+<section class="section features-bg" style="padding:60px 24px">
+  <div style="max-width:560px;margin:0 auto;text-align:center;background:var(--bg3);border:1px solid rgba(249,115,22,.25);border-radius:20px;padding:36px" class="fade-in">
+    <div style="font-size:48px;margin-bottom:16px">⚠️</div>
+    <h2 style="font-size:22px;margin-bottom:12px">ข้อกำหนดการใช้งาน</h2>
+    <p style="color:var(--muted);font-size:15px;line-height:1.9">ใช้เครดิตจาก<br/><strong style="color:#f97316;font-size:20px">Google Flow</strong><br/>ใช้ได้ทุกแพ็คเกจ ไม่จำกัดแพลน</p>
+    <div style="margin-top:20px;padding:16px;background:rgba(249,115,22,.08);border-radius:12px;border:1px solid rgba(249,115,22,.2)">
+      <p style="font-size:13px;color:var(--muted)">สมัคร Google Flow ได้ที่</p>
+      <p style="font-size:16px;font-weight:700;color:#f97316">labs.google/flow</p>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="section" id="pricing">
+  <div class="section-title fade-in">
+    <div class="label">ราคา</div>
+    <h2>ราคาเดียว <span style="color:#f97316">เข้าถึงได้ทุกคน</span></h2>
+  </div>
+  <div class="pricing-card fade-in">
+    <div class="pricing-popular">⭐ Best Value</div>
+    <div class="pricing-name">StoryPro by Flowbanhere</div>
+    <div class="pricing-prices">
+      <div class="pricing-old">฿999</div>
+      <div class="pricing-amount"><span>฿</span>349</div>
+    </div>
+    <div><span class="pricing-save-badge">🔥 ประหยัด 650 บาท • ลด 65%</span></div>
+    <div class="pricing-period" style="margin-top:8px">จ่ายครั้งเดียว • ใช้ได้ตลอด</div>
+    <ul class="pricing-list">
+      <li>Access StoryPro Template บน Google Flow</li>
+      <li>AI Director คิดบทขายอัตโนมัติ</li>
+      <li>สุ่มนายแบบอัตโนมัติ (ถ้าไม่อัพ)</li>
+      <li>ฉากหลังให้เลือกหลายแบบ</li>
+      <li>รองรับทุกขนาดคลิป (TikTok, Reels, Shorts)</li>
+      <li>อัพเดตฟีเจอร์ใหม่ฟรีตลอด</li>
+    </ul>
+    <a href="#payment" class="btn-primary" style="display:flex;justify-content:center;text-decoration:none">💳 ซื้อเลย 349 บาท</a>
+  </div>
+</section>
+
+<!-- PAYMENT -->
+<section class="section features-bg" id="payment">
+  <div class="section-title fade-in">
+    <div class="label">ชำระเงิน</div>
+    <h2>โอนเงิน แล้วส่งสลิป <span style="color:#f97316">รับลิงก์ทันที</span></h2>
+    <p>แอดมินจะ approve และส่งลิงก์ไปที่อีเมลของคุณ</p>
+  </div>
+  <div class="payment-grid fade-in">
+
+    <!-- BANK INFO -->
+    <div class="bank-card">
+      <h3>💳 ข้อมูลบัญชี</h3>
+      <div style="text-align:center;margin-bottom:16px">
+        <img src="/payment-banner.jpg" alt="QR PromptPay Payment"
+          style="width:100%;max-width:340px;border-radius:16px;border:1px solid rgba(249,115,22,.25);"/>
+      </div>
+      <div class="bank-info"><div class="label">จำนวนเงิน</div><div class="value" style="color:#f97316;font-size:24px;font-weight:800">349 บาท</div></div>
+      <button onclick="copyAcc()" id="copyBtn" style="width:100%;margin-top:12px;background:rgba(249,115,22,.1);color:#f97316;border:1px solid rgba(249,115,22,.3);padding:12px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s">
+        📋 คัดลอกเลขบัญชี 5732-3030-24
+      </button>
+    </div>
+
+    <!-- UPLOAD FORM -->
+    <div class="upload-card">
+      <h3>📤 ส่งสลิปโอนเงิน</h3>
+
+      <!-- AUTH GATE -->
+      <div class="auth-gate">
+        <div id="notLoggedIn" class="login-box">
+          <p>🔐 เข้าสู่ระบบด้วย Google ก่อนซื้อ<br/><span style="font-size:12px">ระบบจะจำข้อมูลคุณไว้ ไม่ต้องกรอกซ้ำ</span></p>
+          <a href="/auth/google" class="google-login-btn">
+            <svg class="google-icon" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            เข้าสู่ระบบด้วย Google
+          </a>
+        </div>
+        <div id="loggedInBox" class="user-logged-box" style="display:none">
+          <div class="user-info-left">
+            <img id="userPhoto" class="user-photo" src="" alt="" onerror="this.style.display='none';document.getElementById('userPhotoFallback').style.display='flex'"/>
+            <div id="userPhotoFallback" class="user-photo-placeholder" style="display:none">👤</div>
+            <div>
+              <div class="user-display-name" id="userDisplayName"></div>
+              <div class="user-display-email" id="userDisplayEmail"></div>
+            </div>
+          </div>
+          <a href="/auth/logout" class="logout-link">ออกจากระบบ</a>
+        </div>
+      </div>
+
+      <form id="orderForm">
+        <div class="form-group">
+          <label>ชื่อ-นามสกุล *</label>
+          <input type="text" name="name" id="inputName" placeholder="ชื่อของคุณ" required/>
+        </div>
+        <div class="form-group">
+          <label>อีเมล * (รับลิงก์ใช้งานที่นี่)</label>
+          <input type="email" name="email" id="inputEmail" placeholder="your@email.com" required/>
+        </div>
+        <div class="form-group">
+          <label>เบอร์โทร (ไม่บังคับ)</label>
+          <input type="tel" name="phone" placeholder="08x-xxx-xxxx"/>
+        </div>
+        <div class="form-group">
+          <label>สลิปโอนเงิน *</label>
+          <div class="upload-area" id="uploadArea" onclick="document.getElementById('slipInput').click()">
+            <div style="font-size:34px;margin-bottom:10px">🧾</div>
+            <p><strong>คลิกเพื่ออัพโหลดสลิป</strong></p>
+            <p style="font-size:12px;margin-top:4px">หรือลากมาวาง</p>
+            <img id="previewImg" class="preview-img"/>
+          </div>
+          <input type="file" id="slipInput" name="slip" accept="image/*" required/>
+        </div>
+        <button type="submit" class="submit-btn" id="submitBtn">🚀 ส่งสลิป รอรับลิงก์</button>
+      </form>
+      <div class="success-msg" id="successMsg">
+        <div class="icon">🎉</div>
+        <p>ส่งสลิปเรียบร้อย!</p>
+        <small>รอรับลิงก์ใช้งานที่อีเมลของคุณภายใน 24 ชั่วโมง</small>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REVIEWS -->
+<section class="section features-bg" id="reviews">
+  <div class="section-title fade-in">
+    <div class="label">รีวิวจากผู้ใช้จริง</div>
+    <h2>คนไทยพูดถึง <span style="color:#f97316">StoryPro</span></h2>
+    <p>เสียงจากคนที่ใช้จริง ไม่ได้จ้างมาพูด 😊</p>
+  </div>
+  <div style="max-width:1000px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:20px">
+
+    <div class="review-card fade-in">
+      <div class="review-stars">★★★★★</div>
+      <p class="review-text">"ทำคลิปขายครีมได้ภายใน 20 นาที ตั้งแต่เปิดโปรแกรมจนได้ไฟล์เลย ไม่เคยตัดต่อมาก่อนเลยนะ แต่ทำได้สบายมาก พรอมพ์แบบเดียวกับคุยไลน์เลย"</p>
+      <div class="review-author">
+        <div class="review-avatar" style="background:linear-gradient(135deg,#f97316,#ea580c)">น</div>
+        <div>
+          <div class="review-name">นุ่น วรรณิษา</div>
+          <div class="review-role">ขายครีมออนไลน์ • TikTok</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="review-card fade-in">
+      <div class="review-stars">★★★★★</div>
+      <p class="review-text">"ไลน์กลุ่มมีประโยชน์มากเลย ถามอะไรก็มีคนตอบเร็ว เฮียก็ตอบเองด้วย รู้สึกว่าไม่ได้ซื้อแล้วปล่อยลอยเหมือนที่อื่น คุ้มมากครับ"</p>
+      <div class="review-author">
+        <div class="review-avatar" style="background:linear-gradient(135deg,#7c3aed,#4f46e5)">ก</div>
+        <div>
+          <div class="review-name">กอล์ฟ ธนพล</div>
+          <div class="review-role">ร้านเสื้อผ้า • Shopee</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="review-card fade-in">
+      <div class="review-stars">★★★★★</div>
+      <p class="review-text">"โหมดปักตะกร้าสุดปัง ทำคลิปแล้วยอดออเดอร์เพิ่มขึ้นชัดเจนเลย ก่อนหน้านี้จ้างช่างตัดต่อเดือนละหลายพัน ตอนนี้ทำเองได้แล้ว ประหยัดไปเยอะมาก"</p>
+      <div class="review-author">
+        <div class="review-avatar" style="background:linear-gradient(135deg,#059669,#10b981)">ม</div>
+        <div>
+          <div class="review-name">มิ้นท์ พัชรินทร์</div>
+          <div class="review-role">ขายของใน TikTok Shop</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="review-card fade-in">
+      <div class="review-stars">★★★★★</div>
+      <p class="review-text">"แรกๆ กลัวว่าจะใช้ยาก เพราะไม่เก่งเรื่อง AI เลย แต่ปรากฏว่าง่ายมากจริงๆ พิมพ์บอกว่าอยากได้อะไร มันทำให้เลย สินค้าออกมาตรงปกด้วย ไม่หน้าเพี้ยนเหมือนที่เคยลองตัวอื่น"</p>
+      <div class="review-author">
+        <div class="review-avatar" style="background:linear-gradient(135deg,#db2777,#ec4899)">อ</div>
+        <div>
+          <div class="review-name">อ้อม สุภาพร</div>
+          <div class="review-role">แม่บ้านขายของออนไลน์</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="review-card fade-in">
+      <div class="review-stars">★★★★★</div>
+      <p class="review-text">"ในกลุ่มไลน์มีคนแชร์เทคนิคกันตลอด ได้ไอเดียใหม่ทุกวันเลย ใครใช้โหมดการ์ตูนก็แชร์มา ใครทำโหมดละครก็มาให้ดู ฟีลดีมากว่ามีคนเดินทางด้วยกัน"</p>
+      <div class="review-author">
+        <div class="review-avatar" style="background:linear-gradient(135deg,#d97706,#f59e0b)">ต</div>
+        <div>
+          <div class="review-name">ต้น ณัฐพล</div>
+          <div class="review-role">คอนเทนต์ครีเอเตอร์</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="review-card fade-in">
+      <div class="review-stars">★★★★★</div>
+      <p class="review-text">"อัพเดตบ่อยมากจริงๆ ทุกครั้งที่เข้ามาจะมีฟีเจอร์ใหม่ให้ลอง ซื้อมาสองเดือนแล้วรู้สึกว่าคุ้มขึ้นเรื่อยๆ ตอนนี้ทำ 30 ซีนในคลิปเดียวได้แล้ว เรื่องเล่ายาวๆ ก็ทำได้สบาย"</p>
+      <div class="review-author">
+        <div class="review-avatar" style="background:linear-gradient(135deg,#0891b2,#06b6d4)">ป</div>
+        <div>
+          <div class="review-name">ปุ้ม ปิยะนุช</div>
+          <div class="review-role">เจ้าของร้านขนมออนไลน์</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section" id="faq">
+  <div class="section-title fade-in"><div class="label">FAQ</div><h2>คำถามที่พบบ่อย</h2></div>
+  <div class="faq-list fade-in">
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">ต้องมีความรู้ด้านวิดีโอหรือ AI ไหม?<span class="arrow">▼</span></div><div class="faq-a"><p>ไม่ต้องเลยครับ! StoryPro ออกแบบให้ใช้งานง่ายมาก แค่อัพรูปสินค้า เลือกนายแบบ เลือกฉาก แล้วกดปุ่มเดียว ระบบจัดการให้หมด</p></div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">ต้องใช้แพ็คเกจ Google Flow ไหนถึงจะใช้ได้?<span class="arrow">▼</span></div><div class="faq-a"><p>ใช้ได้ทุกแพ็คเกจของ Google Flow เลยครับ ระบบใช้เครดิตจาก Google Flow ที่มีอยู่แล้ว ไม่ต้องอัพเกรดพิเศษ สมัครได้ที่ labs.google/flow</p></div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">รับลิงก์นานแค่ไหนหลังโอนเงิน?<span class="arrow">▼</span></div><div class="faq-a"><p>แอดมิน approve ภายใน 24 ชั่วโมง ส่วนใหญ่เร็วกว่านั้น พอ approve แล้วลิงก์จะส่งไปทางอีเมลทันที</p></div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">ใช้ได้กี่สินค้า?<span class="arrow">▼</span></div><div class="faq-a"><p>ใช้ได้ไม่จำกัดสินค้าครับ จ่ายครั้งเดียวใช้ได้ตลอด ทำคลิปได้ทุกสินค้า</p></div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">มีปัญหาติดต่อได้ทางไหน?<span class="arrow">▼</span></div><div class="faq-a"><p>ติดต่อได้ทางอีเมล boategrshop@gmail.com ยินดีช่วยเสมอครับ</p></div></div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">StoryPro by Flowbanhere</div>
+  <p>สร้างคลิปขายสินค้าด้วย AI ง่าย เร็ว ครบ</p>
+  <p style="margin-top:8px">📧 <a href="mailto:boategrshop@gmail.com">boategrshop@gmail.com</a></p>
+  <p style="margin-top:16px;font-size:12px;color:#444">© 2025 StoryPro by Flowbanhere. All rights reserved.</p>
+</footer>
+
+<script>
+  // Scroll animation
+  const obs = new IntersectionObserver(e => e.forEach(x => { if(x.isIntersecting) x.target.classList.add('visible'); }), {threshold:0.1});
+  document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+
+  // Copy account
+  function copyAcc() {
+    navigator.clipboard.writeText('5732303024');
+    const btn = document.getElementById('copyBtn');
+    btn.innerHTML = '✅ คัดลอกแล้ว!';
+    setTimeout(() => { btn.innerHTML = '📋 คัดลอกเลขบัญชี'; }, 2000);
+  }
+
+  // Slip upload preview
+  const slipInput = document.getElementById('slipInput');
+  const previewImg = document.getElementById('previewImg');
+  const uploadArea = document.getElementById('uploadArea');
+  slipInput.addEventListener('change', e => {
+    if (e.target.files[0]) {
+      const r = new FileReader();
+      r.onload = ev => { previewImg.src = ev.target.result; previewImg.style.display = 'block'; };
+      r.readAsDataURL(e.target.files[0]);
+    }
+  });
+  uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('drag'); });
+  uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag'));
+  uploadArea.addEventListener('drop', e => {
+    e.preventDefault(); uploadArea.classList.remove('drag');
+    const f = e.dataTransfer.files[0];
+    if (f && f.type.startsWith('image/')) {
+      slipInput.files = e.dataTransfer.files;
+      const r = new FileReader();
+      r.onload = ev => { previewImg.src = ev.target.result; previewImg.style.display = 'block'; };
+      r.readAsDataURL(f);
+    }
+  });
+
+  // Auth state
+  async function checkAuth() {
+    try {
+      const res = await fetch('/api/me');
+      const data = await res.json();
+      if (data.loggedIn) {
+        const u = data.user;
+        // Nav
+        document.getElementById('navUser').style.display = 'flex';
+        document.getElementById('navName').textContent = u.name;
+        if (u.photo) document.getElementById('navAvatar').src = u.photo;
+        // Payment form
+        document.getElementById('notLoggedIn').style.display = 'none';
+        document.getElementById('loggedInBox').style.display = 'flex';
+        document.getElementById('userDisplayName').textContent = u.name;
+        document.getElementById('userDisplayEmail').textContent = u.email;
+        if (u.photo) { document.getElementById('userPhoto').src = u.photo; }
+        else { document.getElementById('userPhoto').style.display = 'none'; document.getElementById('userPhotoFallback').style.display = 'flex'; }
+        // Pre-fill form
+        document.getElementById('inputName').value = u.name;
+        document.getElementById('inputEmail').value = u.email;
+      }
+    } catch(e) {}
+  }
+  checkAuth();
+
+  // Form submit
+  document.getElementById('orderForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true; btn.innerHTML = '⏳ กำลังส่ง...';
+    try {
+      const res = await fetch('/api/order', { method: 'POST', body: new FormData(e.target) });
+      const data = await res.json();
+      if (data.success) {
+        document.getElementById('orderForm').style.display = 'none';
+        document.getElementById('successMsg').style.display = 'block';
+      } else {
+        alert('❌ ' + data.message);
+        btn.disabled = false; btn.innerHTML = '🚀 ส่งสลิป รอรับลิงก์';
+      }
+    } catch {
+      alert('❌ เกิดข้อผิดพลาด'); btn.disabled = false; btn.innerHTML = '🚀 ส่งสลิป รอรับลิงก์';
+    }
+  });
+
+  function toggleFaq(el) { el.classList.toggle('open'); el.nextElementSibling.classList.toggle('open'); }
+</script>
+</body>
+</html>
