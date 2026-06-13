@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>StoryPro by Flowbanhere — ยืนยันการชำระเงิน</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Noto Sans Thai',sans-serif; background:#0a0a0a; color:#f1f1f1; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
+    .container { max-width:620px; width:100%; }
+    .hero-badge { text-align:center; margin-bottom:32px; }
+    .checkmark { width:80px; height:80px; background:linear-gradient(135deg,#22c55e,#16a34a); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:40px; margin:0 auto 16px; box-shadow:0 0 40px rgba(34,197,94,.3); }
+    h1 { font-size:28px; font-weight:800; text-align:center; margin-bottom:6px; }
+    .sub { color:#888; text-align:center; font-size:15px; margin-bottom:32px; }
+
+    .card { background:#1a1a1a; border:1px solid #2a2a2a; border-radius:20px; padding:28px; margin-bottom:16px; }
+    .card-title { font-size:13px; color:#f97316; font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:16px; }
+
+    .link-item { display:flex; align-items:center; gap:14px; padding:14px 16px; background:#111; border-radius:12px; border:1px solid #2a2a2a; margin-bottom:10px; text-decoration:none; color:#f1f1f1; transition:all .2s; }
+    .link-item:hover { border-color:#f97316; background:#1a1a1a; transform:translateX(4px); }
+    .link-icon { width:42px; height:42px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
+    .link-text strong { display:block; font-size:14px; font-weight:700; }
+    .link-text span { font-size:12px; color:#888; }
+    .copy-btn { margin-left:auto; background:rgba(249,115,22,.1); color:#f97316; border:1px solid rgba(249,115,22,.3); padding:6px 14px; border-radius:8px; font-size:12px; font-weight:700; cursor:pointer; font-family:inherit; transition:all .2s; white-space:nowrap; flex-shrink:0; }
+    .copy-btn:hover { background:rgba(249,115,22,.2); }
+
+    .rules-list { list-style:none; }
+    .rules-list li { padding:10px 0; border-bottom:1px solid #2a2a2a; font-size:14px; color:#d1d5db; display:flex; align-items:flex-start; gap:10px; }
+    .rules-list li:last-child { border-bottom:none; }
+    .rules-list li::before { content:'⚠️'; flex-shrink:0; }
+
+    .version-tag { display:inline-block; background:rgba(249,115,22,.12); border:1px solid rgba(249,115,22,.3); color:#f97316; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:700; margin-bottom:16px; }
+
+    .note-box { background:rgba(249,115,22,.06); border:1px solid rgba(249,115,22,.2); border-radius:12px; padding:14px 16px; font-size:13px; color:#d1d5db; line-height:1.7; margin-top:8px; }
+
+    footer-note { display:block; text-align:center; font-size:12px; color:#555; margin-top:24px; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="hero-badge">
+    <div class="checkmark">✅</div>
+    <h1>ยืนยันการชำระเงินแล้ว!</h1>
+    <p class="sub">ขอบคุณที่ใช้บริการ StoryPro by Flowbanhere 🎉<br/>นี่คือลิงก์ทั้งหมดที่คุณต้องการ</p>
+  </div>
+
+  <!-- LINKS -->
+  <div class="card">
+    <div class="card-title">🔗 ลิงก์ของคุณ</div>
+    <div class="version-tag">Ver 4</div>
+
+    <!-- Program link -->
+    <div class="link-item" style="cursor:default">
+      <div class="link-icon" style="background:rgba(99,102,241,.15)">🤖</div>
+      <div class="link-text">
+        <strong>ลิงก์โปรแกรม StoryPro</strong>
+        <span>ก็อปปี้ลิงก์ไปวางใน Google Chrome เท่านั้น (Computer only)</span>
+      </div>
+      <button class="copy-btn" onclick="copyLink('https://labs.google/fx/tools/flow/shared/tool/14eadca6-64db-419d-b6bb-d4272c568d31', this)">📋 คัดลอก</button>
+    </div>
+    <div class="note-box" style="margin-bottom:10px">
+      <strong style="color:#f97316">⚠️ วิธีเปิด:</strong> ก็อปปี้ลิงก์ข้างบน → เปิด Google Chrome → วางในแถบ Address แล้วกด Enter<br/>
+      <strong>ใช้ได้บน Computer เท่านั้น</strong>
+    </div>
+
+    <!-- Tutorial link -->
+    <a href="https://drive.google.com/file/d/1P9kpEbtBABfigy0gGaZgCdDq_Jax84K-/view?usp=sharing" target="_blank" class="link-item">
+      <div class="link-icon" style="background:rgba(239,68,68,.15)">▶️</div>
+      <div class="link-text">
+        <strong>คลิปสอนการใช้งาน</strong>
+        <span>ดูวิธีใช้งาน StoryPro แบบ step-by-step</span>
+      </div>
+      <span style="color:#888;font-size:18px;margin-left:auto">→</span>
+    </a>
+
+    <!-- Line group -->
+    <a href="https://line.me/ti/g2/3XDsT6bNx2X90Or8--xd-2WpSyvcuQ7bsVrWjA?utm_source=invitation&utm_medium=link_copy&utm_campaign=default" target="_blank" class="link-item">
+      <div class="link-icon" style="background:rgba(34,197,94,.15)">💬</div>
+      <div class="link-text">
+        <strong>ไลน์กลุ่ม Community</strong>
+        <span>StoryPro by Flowบ้านเฮีย — ช่วยเหลือกัน เฮียตอบไว</span>
+      </div>
+      <span style="color:#888;font-size:18px;margin-left:auto">→</span>
+    </a>
+  </div>
+
+  <!-- RULES -->
+  <div class="card">
+    <div class="card-title">📋 กฎกติกาการใช้งาน</div>
+    <ul class="rules-list">
+      <li>ห้ามดัดแปลง ทำซ้ำ หรือนำไปแจกจ่าย ขายต่อ</li>
+      <li>หากมีปัญหาการใช้งานทักส่วนตัวเท่านั้น</li>
+      <li>ก่อดราม่าในกลุ่มรวม เตะออกทุกกรณี</li>
+    </ul>
+  </div>
+
+  <footer-note>📧 มีปัญหาติดต่อ boategrshop@gmail.com</footer-note>
+</div>
+
+<script>
+function copyLink(url, btn) {
+  navigator.clipboard.writeText(url).then(() => {
+    const orig = btn.innerHTML;
+    btn.innerHTML = '✅ คัดลอกแล้ว!';
+    btn.style.background = 'rgba(34,197,94,.15)';
+    btn.style.color = '#22c55e';
+    btn.style.borderColor = 'rgba(34,197,94,.3)';
+    setTimeout(() => {
+      btn.innerHTML = orig;
+      btn.style.background = '';
+      btn.style.color = '';
+      btn.style.borderColor = '';
+    }, 2500);
+  });
+}
+</script>
+</body>
+</html>

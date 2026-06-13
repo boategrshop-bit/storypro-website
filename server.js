@@ -14,7 +14,9 @@ const { google } = require('googleapis');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
-const PRODUCT_LINK = 'https://labs.google/fx/tools/flow/shared/tool/99c95438-6779-4092-8d15-056f19caec96';
+const PRODUCT_LINK = 'https://labs.google/fx/tools/flow/shared/tool/14eadca6-64db-419d-b6bb-d4272c568d31';
+const TUTORIAL_LINK = 'https://drive.google.com/file/d/1P9kpEbtBABfigy0gGaZgCdDq_Jax84K-/view?usp=sharing';
+const LINE_GROUP_LINK = 'https://line.me/ti/g2/3XDsT6bNx2X90Or8--xd-2WpSyvcuQ7bsVrWjA?utm_source=invitation&utm_medium=link_copy&utm_campaign=default';
 
 // ---------- DATA ----------
 const UPLOADS_DIR = path.join(__dirname, 'public/uploads');
@@ -250,26 +252,57 @@ app.get('/approve/:token', async (req, res) => {
   await updateSheetApproved(order);
 
   await transporter.sendMail({
-    from: `"Adpro By flowbanhere" <${process.env.GMAIL_USER}>`,
+    from: `"StoryPro by Flowbanhere" <${process.env.GMAIL_USER}>`,
     to: order.email,
-    subject: `✅ ยืนยันการชำระเงิน - เริ่มใช้งาน Adpro ได้เลย!`,
+    subject: `✅ ยืนยันการชำระเงิน - รับลิงก์ StoryPro Ver 4 ได้เลย!`,
     html: `
-      <div style="font-family:sans-serif;max-width:560px;margin:0 auto">
+      <div style="font-family:sans-serif;max-width:580px;margin:0 auto">
         <div style="background:linear-gradient(135deg,#f97316,#ea580c);padding:28px;text-align:center;border-radius:8px 8px 0 0">
-          <h1 style="color:white;margin:0">🎊 ยืนยันการชำระเงินแล้ว!</h1>
+          <h1 style="color:white;margin:0;font-size:22px">🎊 ยืนยันการชำระเงินแล้ว!</h1>
+          <p style="color:rgba(255,255,255,.85);margin:8px 0 0;font-size:14px">StoryPro by Flowbanhere — Ver 4</p>
         </div>
         <div style="background:#fff;padding:28px;border:1px solid #fed7aa;border-radius:0 0 8px 8px">
-          <p>สวัสดี <strong>${order.name}</strong> 👋 ขอบคุณที่ใช้บริการ!</p>
-          <div style="background:#fff7ed;border-radius:12px;padding:24px;margin:20px 0;text-align:center">
-            <p style="color:#ea580c;font-weight:bold;font-size:17px;margin:0 0 14px">🚀 เริ่มใช้งาน Adpro ได้เลย!</p>
-            <a href="${PRODUCT_LINK}" style="background:#f97316;color:white;padding:14px 32px;border-radius:8px;text-decoration:none;font-size:15px;font-weight:bold;display:inline-block">▶ เริ่มใช้งานเลย</a>
+          <p style="font-size:15px">สวัสดี <strong>${order.name}</strong> 👋 ขอบคุณที่ใช้บริการครับ!</p>
+
+          <!-- 1. Program link -->
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin:20px 0">
+            <p style="font-weight:800;font-size:15px;margin:0 0 8px;color:#1e293b">🤖 1. ลิงก์โปรแกรม StoryPro Ver 4</p>
+            <div style="background:#fff;border:1px dashed #f97316;border-radius:8px;padding:12px;word-break:break-all;font-size:13px;color:#f97316;margin-bottom:10px">${PRODUCT_LINK}</div>
+            <p style="font-size:12px;color:#64748b;margin:0">⚠️ <strong>วิธีเปิด:</strong> ก็อปปี้ลิงก์ข้างบน → เปิด Google Chrome → วางในแถบ Address แล้วกด Enter<br/><strong>ใช้ได้บน Computer เท่านั้น</strong></p>
           </div>
-          <p style="color:#9ca3af;font-size:12px;text-align:center">ติดต่อ: boategrshop@gmail.com</p>
+
+          <!-- 2. Tutorial -->
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin:20px 0">
+            <p style="font-weight:800;font-size:15px;margin:0 0 12px;color:#1e293b">▶️ 2. คลิปสอนการใช้งาน</p>
+            <a href="${TUTORIAL_LINK}" style="background:#ef4444;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:bold;display:inline-block">▶ ดูคลิปสอน</a>
+          </div>
+
+          <!-- 3. Line group -->
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin:20px 0">
+            <p style="font-weight:800;font-size:15px;margin:0 0 8px;color:#1e293b">💬 3. ไลน์กลุ่ม Community</p>
+            <p style="font-size:13px;color:#64748b;margin:0 0 12px">StoryPro by Flowบ้านเฮีย — ช่วยเหลือกัน เฮียตอบไว</p>
+            <a href="${LINE_GROUP_LINK}" style="background:#06c755;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:bold;display:inline-block">💬 เข้ากลุ่มไลน์</a>
+          </div>
+
+          <!-- Rules -->
+          <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:20px;margin:20px 0">
+            <p style="font-weight:800;font-size:14px;margin:0 0 12px;color:#ea580c">📋 กฎกติกาการใช้งาน</p>
+            <ul style="font-size:13px;color:#6b7280;padding-left:18px;line-height:2">
+              <li>ห้ามดัดแปลง ทำซ้ำ หรือนำไปแจกจ่าย ขายต่อ</li>
+              <li>หากมีปัญหาการใช้งานทักส่วนตัวเท่านั้น</li>
+              <li>ก่อดราม่าในกลุ่มรวม เตะออกทุกกรณี</li>
+            </ul>
+          </div>
+
+          <div style="text-align:center;margin-top:24px">
+            <a href="${BASE_URL}/download" style="background:linear-gradient(135deg,#f97316,#ea580c);color:white;padding:14px 32px;border-radius:10px;text-decoration:none;font-size:15px;font-weight:bold;display:inline-block">🚀 เข้าหน้าดาวน์โหลด</a>
+          </div>
+          <p style="color:#9ca3af;font-size:12px;text-align:center;margin-top:20px">ติดต่อ: boategrshop@gmail.com</p>
         </div>
       </div>`
   });
 
-  res.send(`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
+  res.send(`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta http-equiv="refresh" content="3;url=${BASE_URL}/download"><style>
     body{font-family:sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;background:#0a0a0a}
     .box{text-align:center;padding:48px;background:#1a1a1a;border-radius:20px;border:1px solid rgba(249,115,22,.3);max-width:400px;width:90%}
     h2{color:#f97316}p{color:#888}strong{color:#f1f1f1}
@@ -277,9 +310,13 @@ app.get('/approve/:token', async (req, res) => {
     <div style="font-size:60px">🎉</div>
     <h2>Approve สำเร็จ!</h2>
     <p>ส่งลิงก์ไปที่<br><strong>${order.email}</strong></p>
-    <p>ลูกค้า: <strong>${order.name}</strong></p>
+    <p style="margin-top:12px;font-size:13px">กำลังพาไปหน้าดาวน์โหลด...</p>
   </div></body></html>`);
+
 });
+
+// ---------- DOWNLOAD ----------
+app.get('/download', (req, res) => res.sendFile(path.join(__dirname, 'public', 'download.html')));
 
 // ---------- ADMIN ----------
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
