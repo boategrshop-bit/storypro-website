@@ -498,7 +498,7 @@
         <li>รองรับทุกขนาดคลิป (TikTok, Reels, Shorts)</li>
         <li>อัพเดตฟีเจอร์ใหม่ฟรีตลอด</li>
       </ul>
-      <a href="#payment" class="btn-primary" style="display:flex;justify-content:center;text-decoration:none">💳 ซื้อเลย 349 บาท</a>
+      <a href="#payment" class="btn-primary" style="display:flex;justify-content:center;text-decoration:none" onclick="setPackage('349')">💳 ซื้อเลย 349 บาท</a>
     </div>
 
     <!-- PACKAGE 2 -->
@@ -521,7 +521,7 @@
         <li>ภาพลักษณ์แบรนด์สม่ำเสมอ</li>
         <li>อัพเดตฟีเจอร์ใหม่ฟรีตลอด</li>
       </ul>
-      <a href="#payment" class="btn-primary" style="display:flex;justify-content:center;text-decoration:none;background:linear-gradient(135deg,#ea580c,#c2410c);box-shadow:0 4px 20px rgba(249,115,22,.4)">🚀 ซื้อเลย 599 บาท</a>
+      <a href="#payment" class="btn-primary" style="display:flex;justify-content:center;text-decoration:none;background:linear-gradient(135deg,#ea580c,#c2410c);box-shadow:0 4px 20px rgba(249,115,22,.4)" onclick="setPackage('599')">🚀 ซื้อเลย 599 บาท</a>
     </div>
 
   </div>
@@ -588,6 +588,7 @@
       </div>
 
       <form id="orderForm">
+        <input type="hidden" id="packageInput" name="package" value="349"/>
         <div class="form-group">
           <label>ชื่อ-นามสกุล *</label>
           <input type="text" name="name" id="inputName" placeholder="ชื่อของคุณ" required/>
@@ -739,6 +740,10 @@
   document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
 
   // Copy account
+  function setPackage(pkg) {
+    document.getElementById('packageInput').value = pkg;
+  }
+
   function copyAcc() {
     navigator.clipboard.writeText('5732303024');
     const btn = document.getElementById('copyBtn');

@@ -64,6 +64,18 @@
       <strong>ใช้ได้บน Computer เท่านั้น</strong>
     </div>
 
+    <!-- Character Sheet (599 only) -->
+    <div id="csBlock" style="display:none">
+      <div class="link-item" style="cursor:default">
+        <div class="link-icon" style="background:rgba(34,197,94,.15)">🎭</div>
+        <div class="link-text">
+          <strong>ลิงก์โปรแกรม Character Sheet Pro</strong>
+          <span>ก็อปปี้ลิงก์ไปวางใน Google Chrome เท่านั้น (Computer only)</span>
+        </div>
+        <button class="copy-btn" onclick="copyLink('https://labs.google/fx/tools/flow/shared/tool/a859ae15-9c0c-489e-8c76-b4362d0f7ed1', this)">📋 คัดลอก</button>
+      </div>
+    </div>
+
     <!-- Tutorial link -->
     <a href="https://drive.google.com/file/d/1P9kpEbtBABfigy0gGaZgCdDq_Jax84K-/view?usp=sharing" target="_blank" class="link-item">
       <div class="link-icon" style="background:rgba(239,68,68,.15)">▶️</div>
@@ -99,6 +111,10 @@
 </div>
 
 <script>
+if (new URLSearchParams(location.search).get('cs') === '1') {
+  document.getElementById('csBlock').style.display = 'block';
+}
+
 function copyLink(url, btn) {
   navigator.clipboard.writeText(url).then(() => {
     const orig = btn.innerHTML;

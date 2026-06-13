@@ -210,7 +210,7 @@ async function updateSheetApproved(order) {
 // ---------- ORDER SUBMIT ----------
 app.post('/api/order', upload.single('slip'), async (req, res) => {
   try {
-    const { name, email, phone } = req.body;
+    const { name, email, phone, package: pkg } = req.body;
     if (!name || !email || !req.file)
       return res.status(400).json({ success: false, message: 'กรุณากรอกข้อมูลให้ครบถ้วน' });
 
@@ -218,6 +218,7 @@ app.post('/api/order', upload.single('slip'), async (req, res) => {
       id: uuidv4(),
       name, email,
       phone: phone || '-',
+      package: pkg === '599' ? '599' : '349',
       googleEmail: req.user?.email || null,
       googleName: req.user?.name || null,
       slipFile: req.file.filename,
@@ -250,11 +251,13 @@ app.post('/api/order', upload.single('slip'), async (req, res) => {
         saveOrders(orders2);
         updateSheetApproved(o).catch(e => console.error('Sheet update error:', e.message));
         // ส่งลิงก์ให้ลูกค้า
+        const dlLink2 = `${BASE_URL}/download?t=${o.approveToken}${o.package === '599' ? '&cs=1' : ''}`;
         sendEmail({
           type: 'approve',
           name: o.name,
           email: o.email,
-          downloadLink: `${BASE_URL}/download?t=${o.approveToken}`
+          downloadLink: dlLink2,
+          hasCharacterSheet: o.package === '599'
         }).catch(e => console.error('Email error:', e.message));
         // แจ้งแอดมินด้วย แต่ mark ว่า auto-approved แล้ว
         sendEmail({
@@ -305,11 +308,13 @@ app.get('/approve/:token', async (req, res) => {
   saveOrders(orders);
   await updateSheetApproved(order);
 
+  const dlLink = `${BASE_URL}/download?t=${order.approveToken}${order.package === '599' ? '&cs=1' : ''}`;
   sendEmail({
     type: 'approve',
     name: order.name,
     email: order.email,
-    downloadLink: `${BASE_URL}/download?t=${order.approveToken}`
+    downloadLink: dlLink,
+    hasCharacterSheet: order.package === '599'
   }).catch(e => console.error('Email error:', e.message));
 
   res.send(`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta http-equiv="refresh" content="3;url=${BASE_URL}/download?t=${order.approveToken}"><style>
@@ -346,7 +351,7 @@ app.get('/api/my-order', (req, res) => {
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
   if (!order) return res.json({ status: 'no_order' });
   if (order.status === 'approved')
-    return res.json({ status: 'approved', downloadLink: `/download?t=${order.approveToken}`, name: order.name });
+    return res.json({ status: 'approved', downloadLink: `/download?t=${order.approveToken}${order.package === '599' ? '&cs=1' : ''}`, name: order.name });
   return res.json({ status: 'pending', name: order.name });
 });
 
