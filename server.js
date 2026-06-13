@@ -43,7 +43,7 @@ const upload = multer({
 });
 
 // ---------- EMAIL ----------
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzLMwrGWhIoDuxvblllh4K7VFnG_jMAfH_m7D8eXgBHuLV4F37YxRsGvUX8hnUnNI8c/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwHT4RYd-FOyWRIvHyfpd4UNxrPsOzh1MkD-dNOO1rYIaxdrhicQ8PdHgBhAFClea-1/exec';
 
 async function sendEmail(data) {
   try {
