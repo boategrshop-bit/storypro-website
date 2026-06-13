@@ -249,11 +249,25 @@ app.post('/api/order', upload.single('slip'), async (req, res) => {
         o.approvedAt = new Date().toISOString();
         saveOrders(orders2);
         updateSheetApproved(o).catch(e => console.error('Sheet update error:', e.message));
+        // ส่งลิงก์ให้ลูกค้า
         sendEmail({
           type: 'approve',
           name: o.name,
           email: o.email,
           downloadLink: `${BASE_URL}/download?t=${o.approveToken}`
+        }).catch(e => console.error('Email error:', e.message));
+        // แจ้งแอดมินด้วย แต่ mark ว่า auto-approved แล้ว
+        sendEmail({
+          type: 'new_order',
+          name: o.name,
+          email: o.email,
+          phone: o.phone,
+          googleEmail: o.googleEmail,
+          orderId: o.id,
+          slipUrl: `${BASE_URL}/uploads/${o.slipFile}`,
+          approveLink: null,
+          adminLink: `${BASE_URL}/admin`,
+          autoApproved: true
         }).catch(e => console.error('Email error:', e.message));
       }
     } else {
@@ -266,7 +280,8 @@ app.post('/api/order', upload.single('slip'), async (req, res) => {
         orderId: order.id,
         slipUrl: `${BASE_URL}/uploads/${order.slipFile}`,
         approveLink,
-        adminLink: `${BASE_URL}/admin`
+        adminLink: `${BASE_URL}/admin`,
+        autoApproved: false
       }).catch(e => console.error('Email error:', e.message));
     }
 
