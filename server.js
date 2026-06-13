@@ -26,6 +26,11 @@ if (!fs.existsSync(DB_FILE)) fs.writeFileSync(DB_FILE, '[]');
 function readOrders() { return JSON.parse(fs.readFileSync(DB_FILE, 'utf8')); }
 function saveOrders(o) { fs.writeFileSync(DB_FILE, JSON.stringify(o, null, 2)); }
 
+const SETTINGS_FILE = path.join(__dirname, 'settings.json');
+if (!fs.existsSync(SETTINGS_FILE)) fs.writeFileSync(SETTINGS_FILE, JSON.stringify({ autoApprove: false }));
+function readSettings() { try { return JSON.parse(fs.readFileSync(SETTINGS_FILE, 'utf8')); } catch { return { autoApprove: false }; } }
+function saveSettings(s) { fs.writeFileSync(SETTINGS_FILE, JSON.stringify(s, null, 2)); }
+
 // ---------- UPLOAD ----------
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, path.join(__dirname, 'public/uploads')),
@@ -232,17 +237,38 @@ app.post('/api/order', upload.single('slip'), async (req, res) => {
     appendOrderToSheet(order).catch(e => console.error('Sheet error:', e.message));
 
     const approveLink = `${BASE_URL}/approve/${order.approveToken}`;
-    sendEmail({
-      type: 'new_order',
-      name: order.name,
-      email: order.email,
-      phone: order.phone,
-      googleEmail: order.googleEmail,
-      orderId: order.id,
-      slipUrl: `${BASE_URL}/uploads/${order.slipFile}`,
-      approveLink,
-      adminLink: `${BASE_URL}/admin`
-    }).catch(e => console.error('Email error:', e.message));
+
+    // ถ้า auto-approve เปิดอยู่ → approve ทันทีเลย
+    const { autoApprove } = readSettings();
+    if (autoApprove) {
+      console.log(`🤖 Auto-approving order ${order.id}`);
+      const orders2 = readOrders();
+      const o = orders2.find(x => x.id === order.id);
+      if (o) {
+        o.status = 'approved';
+        o.approvedAt = new Date().toISOString();
+        saveOrders(orders2);
+        updateSheetApproved(o).catch(e => console.error('Sheet update error:', e.message));
+        sendEmail({
+          type: 'approve',
+          name: o.name,
+          email: o.email,
+          downloadLink: `${BASE_URL}/download?t=${o.approveToken}`
+        }).catch(e => console.error('Email error:', e.message));
+      }
+    } else {
+      sendEmail({
+        type: 'new_order',
+        name: order.name,
+        email: order.email,
+        phone: order.phone,
+        googleEmail: order.googleEmail,
+        orderId: order.id,
+        slipUrl: `${BASE_URL}/uploads/${order.slipFile}`,
+        approveLink,
+        adminLink: `${BASE_URL}/admin`
+      }).catch(e => console.error('Email error:', e.message));
+    }
 
   } catch(err) {
     console.error(err);
@@ -307,6 +333,16 @@ app.get('/api/my-order', (req, res) => {
   if (order.status === 'approved')
     return res.json({ status: 'approved', downloadLink: `/download?t=${order.approveToken}`, name: order.name });
   return res.json({ status: 'pending', name: order.name });
+});
+
+// ---------- SETTINGS ----------
+app.get('/api/settings', (req, res) => res.json(readSettings()));
+app.post('/api/settings', express.json(), (req, res) => {
+  const s = readSettings();
+  if (typeof req.body.autoApprove === 'boolean') s.autoApprove = req.body.autoApprove;
+  saveSettings(s);
+  console.log(`⚙️ Auto-approve: ${s.autoApprove ? 'ON' : 'OFF'}`);
+  res.json(s);
 });
 
 // ---------- ADMIN ----------

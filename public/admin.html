@@ -48,6 +48,23 @@
     .filter-btn { padding:8px 18px; border-radius:20px; border:1px solid #e5e7eb; background:white; font-size:13px; cursor:pointer; font-family:inherit; transition:all .2s; }
     .filter-btn.active { background:#f97316; color:white; border-color:#f97316; }
     .empty { text-align:center; padding:60px; color:#9ca3af; }
+
+    /* AUTO-APPROVE TOGGLE */
+    .auto-bar { max-width:1000px; margin:0 auto; padding:0 28px 0; }
+    .auto-box { background:white; border-radius:14px; border:2px solid #e5e7eb; padding:18px 22px; display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; gap:16px; }
+    .auto-box.on { border-color:#22c55e; background:#f0fdf4; }
+    .auto-info strong { font-size:15px; font-weight:700; }
+    .auto-info p { font-size:13px; color:#6b7280; margin-top:2px; }
+    .auto-box.on .auto-info p { color:#15803d; }
+    .toggle-wrap { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+    .toggle-label { font-size:13px; font-weight:700; color:#6b7280; }
+    .toggle-label.on { color:#15803d; }
+    .switch { position:relative; width:52px; height:28px; }
+    .switch input { opacity:0; width:0; height:0; }
+    .slider { position:absolute; inset:0; background:#d1d5db; border-radius:28px; cursor:pointer; transition:.3s; }
+    .slider:before { content:''; position:absolute; width:22px; height:22px; left:3px; bottom:3px; background:white; border-radius:50%; transition:.3s; box-shadow:0 1px 4px rgba(0,0,0,.2); }
+    input:checked + .slider { background:#22c55e; }
+    input:checked + .slider:before { transform:translateX(24px); }
     .empty .icon { font-size:48px; margin-bottom:12px; }
     .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:999; align-items:center; justify-content:center; }
     .modal.open { display:flex; }
@@ -80,6 +97,22 @@
     <button onclick="logout()" style="background:rgba(0,0,0,.25);color:white;border:none;padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer;font-family:inherit">ออกจากระบบ</button>
   </div>
 </header>
+
+<div class="auto-bar">
+  <div class="auto-box" id="autoBox">
+    <div class="auto-info">
+      <strong id="autoTitle">🤖 Auto-Approve</strong>
+      <p id="autoDesc">ปิดอยู่ — ออเดอร์ใหม่จะรอให้คุณ Approve เอง</p>
+    </div>
+    <div class="toggle-wrap">
+      <span class="toggle-label" id="toggleLabel">OFF</span>
+      <label class="switch">
+        <input type="checkbox" id="autoToggle" onchange="setAutoApprove(this.checked)"/>
+        <span class="slider"></span>
+      </label>
+    </div>
+  </div>
+</div>
 
 <div class="stats">
   <div class="stat-card"><div class="num" id="statTotal">-</div><div class="label">ออเดอร์ทั้งหมด</div></div>
@@ -208,7 +241,37 @@
   }
   function closeModal() { document.getElementById('slipModal').classList.remove('open'); }
 
-  if (sessionStorage.getItem('admin_auth') === '1') loadOrders();
+  async function loadAutoApprove() {
+    try {
+      const res = await fetch('/api/settings');
+      const s = await res.json();
+      applyAutoUI(s.autoApprove);
+    } catch {}
+  }
+
+  async function setAutoApprove(val) {
+    try {
+      const res = await fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ autoApprove: val })
+      });
+      const s = await res.json();
+      applyAutoUI(s.autoApprove);
+    } catch { alert('เกิดข้อผิดพลาด'); }
+  }
+
+  function applyAutoUI(on) {
+    document.getElementById('autoToggle').checked = on;
+    document.getElementById('autoBox').className = 'auto-box' + (on ? ' on' : '');
+    document.getElementById('toggleLabel').textContent = on ? 'ON' : 'OFF';
+    document.getElementById('toggleLabel').className = 'toggle-label' + (on ? ' on' : '');
+    document.getElementById('autoDesc').textContent = on
+      ? '✅ เปิดอยู่ — ออเดอร์ใหม่จะถูก Approve อัตโนมัติ และส่งลิงก์ให้ลูกค้าทันที'
+      : 'ปิดอยู่ — ออเดอร์ใหม่จะรอให้คุณ Approve เอง';
+  }
+
+  if (sessionStorage.getItem('admin_auth') === '1') { loadOrders(); loadAutoApprove(); }
   setInterval(() => { if (sessionStorage.getItem('admin_auth') === '1') loadOrders(); }, 30000);
 </script>
 </body>
