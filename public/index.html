@@ -173,6 +173,14 @@
     .faq-a.open { max-height:200px; }
     .faq-a p { padding:0 24px 18px; }
 
+    .faq-item { background:#111; border:1px solid var(--border); border-radius:14px; overflow:hidden; transition:border-color .2s; }
+    .faq-item:hover { border-color:rgba(249,115,22,.4); }
+    .faq-item[open] { border-color:rgba(249,115,22,.5); }
+    .faq-item summary { padding:18px 22px; font-size:15px; font-weight:600; cursor:pointer; list-style:none; display:flex; justify-content:space-between; align-items:center; color:#f1f1f1; }
+    .faq-item summary::-webkit-details-marker { display:none; }
+    .faq-item summary::after { content:'+'; font-size:22px; color:#f97316; font-weight:400; transition:transform .3s; flex-shrink:0; }
+    .faq-item[open] summary::after { transform:rotate(45deg); }
+    .faq-item p { padding:0 22px 18px; font-size:14px; color:#999; line-height:1.8; margin:0; }
     footer { background:#050505; color:var(--muted); padding:40px 24px; text-align:center; border-top:1px solid var(--border); }
     .footer-logo { font-size:22px; font-weight:800; background:linear-gradient(135deg,#f97316,#fb923c); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:12px; }
     footer p { font-size:14px; line-height:1.8; }
@@ -534,6 +542,63 @@
     <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">รับลิงก์นานแค่ไหนหลังโอนเงิน?<span class="arrow">▼</span></div><div class="faq-a"><p>แอดมิน approve ภายใน 24 ชั่วโมง ส่วนใหญ่เร็วกว่านั้น พอ approve แล้วลิงก์จะส่งไปทางอีเมลทันที</p></div></div>
     <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">ใช้ได้กี่สินค้า?<span class="arrow">▼</span></div><div class="faq-a"><p>ใช้ได้ไม่จำกัดสินค้าครับ จ่ายครั้งเดียวใช้ได้ตลอด ทำคลิปได้ทุกสินค้า</p></div></div>
     <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">มีปัญหาติดต่อได้ทางไหน?<span class="arrow">▼</span></div><div class="faq-a"><p>ติดต่อได้ทางอีเมล boategrshop@gmail.com ยินดีช่วยเสมอครับ</p></div></div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section" id="faq" style="background:#0a0a0a">
+  <div class="section-title fade-in">
+    <div class="label">FAQ</div>
+    <h2>คำถามที่พบ<span style="color:#f97316">บ่อย</span></h2>
+    <p>ตอบทุกข้อสงสัยก่อนตัดสินใจซื้อ</p>
+  </div>
+  <div class="fade-in" style="max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:12px">
+
+    <details class="faq-item">
+      <summary>ใช้งานยังไง ติดตั้งโปรแกรมยากไหม?</summary>
+      <p>เข้าใช้งานที่ Tools บนเว็บไซต์ Google Flow หลังจากกดลิงก์โปรแกรมแล้วได้ทันที ไม่ต้องติดตั้งอะไรเพิ่ม</p>
+    </details>
+
+    <details class="faq-item">
+      <summary>ต้องมี Gemini Ultra หรือ Pro ไหม?</summary>
+      <p>ใช้ได้ทั้งสองอย่าง และตัวฟรีก็ใช้ได้ครับ แต่เครดิตจะไม่เท่ากัน ทุกๆ คลิปใช้เครดิตทำ</p>
+    </details>
+
+    <details class="faq-item">
+      <summary>349 บาท จ่ายครั้งเดียวไหม?</summary>
+      <p>จ่ายครั้งเดียวซื้อโปรแกรมแบบถาวร พร้อมการอัพเดท ส่วนรายเดือนจ่ายค่าเครดิตกับ Google Flow เอง</p>
+    </details>
+
+    <details class="faq-item">
+      <summary>ทำอะไรได้บ้าง?</summary>
+      <p>ทำคลิปขายของ ปักตะกร้าหลากหลายแนว คลิปเล่าเรื่อง คลิปละคร ทำได้ถึง 30 ฉาก</p>
+    </details>
+
+    <details class="faq-item">
+      <summary>เจนโหมด 0 เครดิตได้ไหม?</summary>
+      <p>ปัจจุบัน Google ไม่อนุญาตให้ใช้ 0 เครดิตนอกแพลตฟอร์ม ทั้ง API หรืออื่นๆ ต้องใช้หน้าแพลตฟอร์ม Google Flow เท่านั้น</p>
+    </details>
+
+    <details class="faq-item">
+      <summary>ใช้บอทไหม?</summary>
+      <p>โปรแกรมไม่ใช่บอทครับ เป็นโปรแกรมสำเร็จรูปที่คั่นกลางระหว่างผู้ใช้กับ Flow ทำให้ทำงานง่ายขึ้น สะดวกขึ้น</p>
+    </details>
+
+    <details class="faq-item">
+      <summary>มีไลน์กลุ่มไหม?</summary>
+      <p>มีไลน์กลุ่ม สามารถสอบถามได้ครับ แต่ถ้าใครก่อดราม่า เตะออกทุกกรณี</p>
+    </details>
+
+    <details class="faq-item">
+      <summary>ใช้ API ไหม?</summary>
+      <p>ไม่ใช้ API ครับ เพราะฉะนั้นไม่มีค่าใช้จ่ายอื่นๆ อีก นอกจากค่าเครดิต Flow</p>
+    </details>
+
+    <details class="faq-item">
+      <summary>ทำในคอมหรือมือถือได้ไหม?</summary>
+      <p>ทำได้ทั้งคอมและมือถือ หรือแท็บเล็ตแอนดรอยด์ครับ iOS ปัจจุบันยังไม่ได้ จะมีการอัพเดทเร็วๆ นี้แน่นอน</p>
+    </details>
+
   </div>
 </section>
 
