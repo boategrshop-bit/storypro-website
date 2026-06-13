@@ -113,17 +113,24 @@ async function getSheetsClient() {
   return google.sheets({ version: 'v4', auth });
 }
 
-async function ensureSheetHeaders(sheets) {
+async function getSheetName(sheets) {
+  try {
+    const meta = await sheets.spreadsheets.get({ spreadsheetId: process.env.GOOGLE_SHEET_ID });
+    return meta.data.sheets[0].properties.title;
+  } catch(e) { return 'Sheet1'; }
+}
+
+async function ensureSheetHeaders(sheets, sheetName) {
   if (!process.env.GOOGLE_SHEET_ID) return;
   try {
     const res = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.GOOGLE_SHEET_ID,
-      range: 'Sheet1!A1',
+      range: `${sheetName}!A1`,
     });
     if (!res.data.values) {
       await sheets.spreadsheets.values.update({
         spreadsheetId: process.env.GOOGLE_SHEET_ID,
-        range: 'Sheet1!A1',
+        range: `${sheetName}!A1`,
         valueInputOption: 'USER_ENTERED',
         requestBody: { values: [['Order ID','ชื่อ','อีเมล','เบอร์โทร','Google Account','สถานะ','วันที่สั่ง','วันที่ Approve','ราคา','สลิป']] }
       });
@@ -136,10 +143,11 @@ async function appendOrderToSheet(order) {
   try {
     const sheets = await getSheetsClient();
     if (!sheets) return;
-    await ensureSheetHeaders(sheets);
+    const sheetName = await getSheetName(sheets);
+    await ensureSheetHeaders(sheets, sheetName);
     await sheets.spreadsheets.values.append({
       spreadsheetId: process.env.GOOGLE_SHEET_ID,
-      range: 'Sheet1!A:J',
+      range: `${sheetName}!A:J`,
       valueInputOption: 'USER_ENTERED',
       requestBody: { values: [[
         order.id, order.name, order.email, order.phone,
@@ -157,16 +165,17 @@ async function updateSheetApproved(order) {
   try {
     const sheets = await getSheetsClient();
     if (!sheets) return;
+    const sheetName = await getSheetName(sheets);
     const res = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.GOOGLE_SHEET_ID,
-      range: 'Sheet1!A:A',
+      range: `${sheetName}!A:A`,
     });
     const rows = res.data.values || [];
     const rowIdx = rows.findIndex(r => r[0] === order.id);
     if (rowIdx > 0) {
       await sheets.spreadsheets.values.update({
         spreadsheetId: process.env.GOOGLE_SHEET_ID,
-        range: `Sheet1!F${rowIdx + 1}:H${rowIdx + 1}`,
+        range: `${sheetName}!F${rowIdx + 1}:H${rowIdx + 1}`,
         valueInputOption: 'USER_ENTERED',
         requestBody: { values: [['✅ Approved', new Date(order.approvedAt).toLocaleString('th-TH'), '฿349']] }
       });
@@ -196,7 +205,12 @@ app.post('/api/order', upload.single('slip'), async (req, res) => {
     const orders = readOrders();
     orders.push(order);
     saveOrders(orders);
-    await appendOrderToSheet(order);
+
+    // ตอบ success ก่อนเลย ไม่รอ email/sheet
+    res.json({ success: true });
+
+    // ส่ง email + sheet ใน background
+    appendOrderToSheet(order).catch(e => console.error('Sheet error:', e.message));
 
     const approveLink = `${BASE_URL}/approve/${order.approveToken}`;
     await transporter.sendMail({
@@ -229,12 +243,12 @@ app.post('/api/order', upload.single('slip'), async (req, res) => {
         path: req.file.path,
         cid: 'slip_image'
       }]
-    });
+    }).catch(e => console.error('Email error:', e.message));
 
-    res.json({ success: true });
   } catch(err) {
     console.error(err);
-    res.status(500).json({ success: false, message: 'เกิดข้อผิดพลาด กรุณาลองใหม่' });
+    if (!res.headersSent)
+      res.status(500).json({ success: false, message: 'เกิดข้อผิดพลาด กรุณาลองใหม่' });
   }
 });
 
