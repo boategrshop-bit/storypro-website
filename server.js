@@ -13,7 +13,7 @@ const { google } = require('googleapis');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
-const PRODUCT_LINK = 'https://labs.google/fx/tools/flow/shared/tool/14eadca6-64db-419d-b6bb-d4272c568d31';
+const PRODUCT_LINK = 'https://labs.google/fx/tools/flow/shared/tool/3a5164e0-b564-4545-9b11-bcb07c0c4575';
 const TUTORIAL_LINK = 'https://drive.google.com/file/d/1P9kpEbtBABfigy0gGaZgCdDq_Jax84K-/view?usp=sharing';
 const LINE_GROUP_LINK = 'https://line.me/ti/g2/3XDsT6bNx2X90Or8--xd-2WpSyvcuQ7bsVrWjA?utm_source=invitation&utm_medium=link_copy&utm_campaign=default';
 
