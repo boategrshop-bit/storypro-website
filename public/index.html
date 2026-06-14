@@ -157,6 +157,24 @@
     .submit-btn { width:100%; background:linear-gradient(135deg,#f97316,#ea580c); color:white; border:none; padding:16px; border-radius:12px; font-size:16px; font-weight:700; cursor:pointer; font-family:inherit; transition:all .3s; margin-top:8px; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 6px 24px rgba(249,115,22,.4); }
     .submit-btn:hover { transform:translateY(-2px); box-shadow:0 10px 32px rgba(249,115,22,.55); }
     .submit-btn:disabled { opacity:.6; cursor:not-allowed; transform:none; }
+
+    /* PACKAGE POPUP */
+    #pkgOverlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.75); z-index:9000; align-items:center; justify-content:center; padding:16px; backdrop-filter:blur(4px); }
+    #pkgOverlay.open { display:flex; }
+    #pkgModal { background:#111; border:1px solid rgba(249,115,22,.35); border-radius:24px; padding:32px 24px; max-width:420px; width:100%; }
+    #pkgModal h3 { font-size:20px; font-weight:800; color:#f1f1f1; margin-bottom:6px; text-align:center; }
+    #pkgModal p { color:#9ca3af; font-size:14px; text-align:center; margin-bottom:24px; }
+    .pkg-card { border:2px solid #2a2a2a; border-radius:16px; padding:18px 20px; cursor:pointer; transition:all .2s; margin-bottom:12px; background:#1a1a1a; }
+    .pkg-card:hover { border-color:#f97316; background:#1f1f1f; }
+    .pkg-card.selected { border-color:#f97316; background:rgba(249,115,22,.08); }
+    .pkg-card .pkg-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
+    .pkg-card .pkg-name { font-size:16px; font-weight:800; color:#f1f1f1; }
+    .pkg-card .pkg-price { font-size:22px; font-weight:900; color:#f97316; }
+    .pkg-card .pkg-desc { font-size:13px; color:#9ca3af; }
+    .pkg-card .pkg-check { width:22px; height:22px; border-radius:50%; border:2px solid #3a3a3a; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:13px; transition:all .2s; }
+    .pkg-card.selected .pkg-check { background:#f97316; border-color:#f97316; color:white; }
+    #pkgConfirmBtn { width:100%; background:linear-gradient(135deg,#f97316,#ea580c); color:white; border:none; padding:15px; border-radius:12px; font-size:16px; font-weight:800; cursor:pointer; font-family:inherit; margin-top:8px; opacity:.4; pointer-events:none; transition:all .2s; }
+    #pkgConfirmBtn.ready { opacity:1; pointer-events:auto; }
     .success-msg { display:none; background:rgba(34,197,94,.1); border:1px solid rgba(34,197,94,.3); border-radius:12px; padding:24px; margin-top:16px; text-align:center; }
     .success-msg .icon { font-size:40px; margin-bottom:10px; }
     .success-msg p { color:#4ade80; font-size:16px; font-weight:700; }
@@ -811,8 +829,17 @@
   checkAuth();
 
   // Form submit
+  // ---------- PACKAGE POPUP ----------
+  let _pendingSubmit = false;
+
   document.getElementById('orderForm').addEventListener('submit', async e => {
     e.preventDefault();
+    if (!_pendingSubmit) {
+      // เปิด popup ก่อน
+      openPkgPopup();
+      return;
+    }
+    _pendingSubmit = false;
     const btn = document.getElementById('submitBtn');
     btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> กำลังส่ง... รอสักครู่นะครับ';
     try {
@@ -830,7 +857,67 @@
     }
   });
 
+  function openPkgPopup() {
+    // reset selection
+    document.querySelectorAll('.pkg-card').forEach(c => c.classList.remove('selected'));
+    document.querySelectorAll('.pkg-check').forEach(c => c.textContent = '');
+    document.getElementById('pkgConfirmBtn').classList.remove('ready');
+    document.getElementById('pkgOverlay').classList.add('open');
+  }
+
+  function selectPkg(pkg, el) {
+    document.querySelectorAll('.pkg-card').forEach(c => { c.classList.remove('selected'); c.querySelector('.pkg-check').textContent = ''; });
+    el.classList.add('selected');
+    el.querySelector('.pkg-check').textContent = '✓';
+    document.getElementById('packageInput').value = pkg;
+    document.getElementById('pkgConfirmBtn').classList.add('ready');
+  }
+
+  function confirmPkg() {
+    document.getElementById('pkgOverlay').classList.remove('open');
+    _pendingSubmit = true;
+    document.getElementById('orderForm').requestSubmit();
+  }
+
   function toggleFaq(el) { el.classList.toggle('open'); el.nextElementSibling.classList.toggle('open'); }
 </script>
+
+<!-- PACKAGE POPUP -->
+<div id="pkgOverlay">
+  <div id="pkgModal">
+    <h3>🛒 เลือกแพคเกจที่คุณโอน</h3>
+    <p>กรุณายืนยันว่าโอนเงินมาเป็นแพคเกจไหน<br/>เพื่อให้ระบบส่งลิงก์ที่ถูกต้องให้คุณ</p>
+
+    <div class="pkg-card" onclick="selectPkg('349', this)">
+      <div class="pkg-top">
+        <div>
+          <div class="pkg-name">StoryPro</div>
+          <div class="pkg-desc">โปรแกรมสร้างวิดีโอ AI ด้วย Flow</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="pkg-price">฿349</div>
+          <div class="pkg-check"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pkg-card" onclick="selectPkg('599', this)">
+      <div class="pkg-top">
+        <div>
+          <div class="pkg-name">StoryPro + Character Sheet <span style="background:#ef4444;color:white;font-size:11px;padding:2px 8px;border-radius:20px;font-weight:800;margin-left:6px">HOT</span></div>
+          <div class="pkg-desc">ได้ทั้ง 2 โปรแกรม ใช้คู่กันปังกว่าเดิม</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="pkg-price">฿599</div>
+          <div class="pkg-check"></div>
+        </div>
+      </div>
+    </div>
+
+    <button id="pkgConfirmBtn" onclick="confirmPkg()">✅ ยืนยัน และส่งสลิป</button>
+    <button onclick="document.getElementById('pkgOverlay').classList.remove('open')" style="width:100%;background:none;border:none;color:#6b7280;font-size:14px;padding:12px;cursor:pointer;font-family:inherit;margin-top:4px">ยกเลิก</button>
+  </div>
+</div>
+
 </body>
 </html>
