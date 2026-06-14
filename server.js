@@ -181,7 +181,7 @@ async function appendOrderToSheet(order) {
         order.googleEmail || '-',
         '⏳ รอ Approve',
         new Date(order.createdAt).toLocaleString('th-TH'),
-        '-', '฿349', order.slipFile
+        '-', `฿${order.package || '349'}`, order.slipFile
       ]]}
     });
   } catch(e) { console.error('Sheets append error:', e.message); }
@@ -204,7 +204,7 @@ async function updateSheetApproved(order) {
         spreadsheetId: process.env.GOOGLE_SHEET_ID,
         range: `${sheetName}!F${rowIdx + 1}:H${rowIdx + 1}`,
         valueInputOption: 'USER_ENTERED',
-        requestBody: { values: [['✅ Approved', new Date(order.approvedAt).toLocaleString('th-TH'), '฿349']] }
+        requestBody: { values: [['✅ Approved', new Date(order.approvedAt).toLocaleString('th-TH'), `฿${order.package || '349'}`]] }
       });
     }
   } catch(e) { console.error('Sheets update error:', e.message); }

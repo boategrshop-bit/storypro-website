@@ -180,7 +180,8 @@
     document.getElementById('statTotal').textContent = allOrders.length;
     document.getElementById('statPending').textContent = pending;
     document.getElementById('statApproved').textContent = approved;
-    document.getElementById('statRevenue').textContent = (approved * 349).toLocaleString();
+    const revenue = allOrders.filter(o => o.status === 'approved').reduce((sum, o) => sum + (parseInt(o.package) || 349), 0);
+    document.getElementById('statRevenue').textContent = revenue.toLocaleString();
   }
 
   function renderOrders() {
