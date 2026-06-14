@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Admin Panel - StoryPro by Flowbanhere</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
     body { font-family:'Noto Sans Thai',sans-serif; background:#f9fafb; color:#1f2937; }
@@ -70,6 +71,19 @@
     .modal.open { display:flex; }
     .modal img { max-width:90vw; max-height:90vh; border-radius:12px; }
     .modal-close { position:absolute; top:20px; right:24px; background:white; border:none; width:36px; height:36px; border-radius:50%; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+
+    /* CHART SECTION */
+    .chart-section { max-width:1000px; margin:0 auto; padding:0 28px 24px; }
+    .chart-card { background:white; border-radius:16px; border:1px solid #e5e7eb; padding:24px; }
+    .chart-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; flex-wrap:wrap; gap:12px; }
+    .chart-header h2 { font-size:17px; font-weight:700; }
+    .chart-tabs { display:flex; gap:8px; }
+    .chart-tab { padding:6px 16px; border-radius:20px; border:1px solid #e5e7eb; background:white; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; transition:all .2s; color:#6b7280; }
+    .chart-tab.active { background:#f97316; color:white; border-color:#f97316; }
+    .chart-summary { display:flex; gap:20px; margin-bottom:16px; flex-wrap:wrap; }
+    .chart-sum-item { font-size:13px; color:#6b7280; }
+    .chart-sum-item strong { color:#f97316; font-size:16px; font-weight:800; }
+    .chart-wrap { position:relative; height:260px; }
   </style>
 </head>
 <body>
@@ -121,6 +135,20 @@
   <div class="stat-card"><div class="num" id="statRevenue">-</div><div class="label">รายได้รวม (฿)</div></div>
 </div>
 
+<div class="chart-section">
+  <div class="chart-card">
+    <div class="chart-header">
+      <h2>📈 ยอดขาย</h2>
+      <div class="chart-tabs">
+        <button class="chart-tab active" onclick="setChartMode('day',this)">รายวัน (30 วัน)</button>
+        <button class="chart-tab" onclick="setChartMode('month',this)">รายเดือน</button>
+      </div>
+    </div>
+    <div class="chart-summary" id="chartSummary"></div>
+    <div class="chart-wrap"><canvas id="salesChart"></canvas></div>
+  </div>
+</div>
+
 <div class="orders-section">
   <h2>📋 รายการออเดอร์</h2>
   <div class="filter-bar">
@@ -169,6 +197,7 @@
       const res = await fetch('/api/orders');
       allOrders = await res.json();
       updateStats();
+      renderChart();
       renderOrders();
       document.getElementById('lastUpdate').textContent = 'อัพเดตล่าสุด: ' + new Date().toLocaleTimeString('th-TH');
     } catch {}
@@ -274,6 +303,84 @@
 
   if (sessionStorage.getItem('admin_auth') === '1') { loadOrders(); loadAutoApprove(); }
   setInterval(() => { if (sessionStorage.getItem('admin_auth') === '1') loadOrders(); }, 30000);
+
+  // ---------- CHART ----------
+  let salesChart = null;
+  let chartMode = 'day';
+
+  function setChartMode(mode, btn) {
+    chartMode = mode;
+    document.querySelectorAll('.chart-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderChart();
+  }
+
+  function renderChart() {
+    const approved = allOrders.filter(o => o.status === 'approved');
+    let labels = [], data = [], total = 0, bestLabel = '', bestVal = 0;
+
+    if (chartMode === 'day') {
+      const map = {};
+      const today = new Date();
+      for (let i = 29; i >= 0; i--) {
+        const d = new Date(today); d.setDate(d.getDate() - i);
+        const key = d.toLocaleDateString('th-TH', { day:'2-digit', month:'2-digit' });
+        map[key] = 0;
+      }
+      approved.forEach(o => {
+        const key = new Date(o.createdAt).toLocaleDateString('th-TH', { day:'2-digit', month:'2-digit' });
+        if (key in map) map[key] += (parseInt(o.package) || 349);
+      });
+      labels = Object.keys(map);
+      data = Object.values(map);
+    } else {
+      const map = {};
+      approved.forEach(o => {
+        const d = new Date(o.createdAt);
+        const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+        map[key] = (map[key] || 0) + (parseInt(o.package) || 349);
+      });
+      const sorted = Object.keys(map).sort();
+      labels = sorted.map(k => { const [y,m] = k.split('-'); return `${m}/${y.slice(2)}`; });
+      data = sorted.map(k => map[k]);
+    }
+
+    total = data.reduce((s,v) => s+v, 0);
+    data.forEach((v, i) => { if (v > bestVal) { bestVal = v; bestLabel = labels[i]; } });
+
+    document.getElementById('chartSummary').innerHTML = `
+      <div class="chart-sum-item">รายได้รวม <strong>฿${total.toLocaleString()}</strong></div>
+      ${bestLabel ? `<div class="chart-sum-item">วันที่ดีที่สุด <strong>${bestLabel}</strong> (฿${bestVal.toLocaleString()})</div>` : ''}
+      <div class="chart-sum-item">ออเดอร์ที่ approved <strong>${approved.length} รายการ</strong></div>
+    `;
+
+    const ctx = document.getElementById('salesChart').getContext('2d');
+    if (salesChart) salesChart.destroy();
+    salesChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'รายได้ (฿)',
+          data,
+          backgroundColor: data.map(v => v > 0 ? 'rgba(249,115,22,0.85)' : 'rgba(229,231,235,0.5)'),
+          borderRadius: 6,
+          borderSkipped: false,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => `฿${ctx.raw.toLocaleString()}` } }
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { family: 'Noto Sans Thai', size: 11 }, maxRotation: 45 } },
+          y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { family: 'Noto Sans Thai', size: 11 }, callback: v => '฿'+v.toLocaleString() }, beginAtZero: true }
+        }
+      }
+    });
+  }
 </script>
 </body>
 </html>
