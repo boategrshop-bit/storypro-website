@@ -21,12 +21,15 @@ const LINE_GROUP_LINK = 'https://line.me/ti/g2/3XDsT6bNx2X90Or8--xd-2WpSyvcuQ7bs
 const UPLOADS_DIR = path.join(__dirname, 'public/uploads');
 if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 
-const DB_FILE = path.join(__dirname, 'orders.json');
+const DATA_DIR = process.env.DATA_DIR || path.join(__dirname);
+if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+
+const DB_FILE = path.join(DATA_DIR, 'orders.json');
 if (!fs.existsSync(DB_FILE)) fs.writeFileSync(DB_FILE, '[]');
 function readOrders() { return JSON.parse(fs.readFileSync(DB_FILE, 'utf8')); }
 function saveOrders(o) { fs.writeFileSync(DB_FILE, JSON.stringify(o, null, 2)); }
 
-const SETTINGS_FILE = path.join(__dirname, 'settings.json');
+const SETTINGS_FILE = path.join(DATA_DIR, 'settings.json');
 if (!fs.existsSync(SETTINGS_FILE)) fs.writeFileSync(SETTINGS_FILE, JSON.stringify({ autoApprove: false }));
 function readSettings() { try { return JSON.parse(fs.readFileSync(SETTINGS_FILE, 'utf8')); } catch { return { autoApprove: false }; } }
 function saveSettings(s) { fs.writeFileSync(SETTINGS_FILE, JSON.stringify(s, null, 2)); }
