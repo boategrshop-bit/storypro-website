@@ -565,6 +565,41 @@
     <div class="upload-card">
       <h3>📤 ส่งสลิปโอนเงิน</h3>
 
+      <!-- AUTH GATE -->
+      <div class="auth-gate">
+        <div id="notLoggedIn" class="login-box">
+          <p>🔐 เข้าสู่ระบบด้วย Google ก่อนซื้อ<br/><span style="font-size:12px">ระบบจะจำข้อมูลคุณไว้ ไม่ต้องกรอกซ้ำ</span></p>
+          <a href="/auth/google" class="google-login-btn">
+            <svg class="google-icon" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            เข้าสู่ระบบด้วย Google
+          </a>
+        </div>
+        <div id="loggedInBox" class="user-logged-box" style="display:none">
+          <div class="user-info-left">
+            <img id="userPhoto" class="user-photo" src="" alt="" onerror="this.style.display='none';document.getElementById('userPhotoFallback').style.display='flex'"/>
+            <div id="userPhotoFallback" class="user-photo-placeholder" style="display:none">👤</div>
+            <div>
+              <div class="user-display-name" id="userDisplayName"></div>
+              <div class="user-display-email" id="userDisplayEmail"></div>
+            </div>
+          </div>
+          <a href="/auth/logout" class="logout-link">ออกจากระบบ</a>
+        </div>
+      </div>
+
+      <!-- ORDER STATUS (แสดงเมื่อ login แล้วมีออเดอร์) -->
+      <div id="statusApproved" style="display:none;text-align:center;padding:28px 20px">
+        <div style="font-size:56px;margin-bottom:12px">✅</div>
+        <h3 style="color:#22c55e;margin:0 0 8px">ชำระเงินเรียบร้อยแล้ว!</h3>
+        <p style="color:#888;font-size:14px;margin-bottom:20px">กดปุ่มด้านล่างเพื่อเข้าใช้งาน StoryPro</p>
+        <a id="downloadBtnStatus" href="#" style="display:inline-block;background:linear-gradient(135deg,#f97316,#ea580c);color:white;padding:14px 32px;border-radius:12px;text-decoration:none;font-size:16px;font-weight:700">🚀 เข้าใช้งาน StoryPro</a>
+      </div>
+      <div id="statusPending" style="display:none;text-align:center;padding:28px 20px">
+        <div style="font-size:56px;margin-bottom:12px">⏳</div>
+        <h3 style="color:#f97316;margin:0 0 8px">สลิปของคุณรอการยืนยัน</h3>
+        <p style="color:#888;font-size:14px">แอดมินกำลังตรวจสอบ จะส่งลิงก์ไปที่อีเมลของคุณเร็วๆ นี้</p>
+      </div>
+
       <form id="orderForm">
         <input type="hidden" id="packageInput" name="package" value="349"/>
         <div class="form-group">
@@ -753,6 +788,45 @@
     }
   });
 
+  // Auth state
+  async function checkAuth() {
+    try {
+      const res = await fetch('/api/me');
+      const data = await res.json();
+      if (data.loggedIn) {
+        const u = data.user;
+        // Nav
+        document.getElementById('navUser').style.display = 'flex';
+        document.getElementById('navName').textContent = u.name;
+        if (u.photo) document.getElementById('navAvatar').src = u.photo;
+        // Payment form
+        document.getElementById('notLoggedIn').style.display = 'none';
+        document.getElementById('loggedInBox').style.display = 'flex';
+        document.getElementById('userDisplayName').textContent = u.name;
+        document.getElementById('userDisplayEmail').textContent = u.email;
+        if (u.photo) { document.getElementById('userPhoto').src = u.photo; }
+        else { document.getElementById('userPhoto').style.display = 'none'; document.getElementById('userPhotoFallback').style.display = 'flex'; }
+        // Pre-fill form
+        document.getElementById('inputName').value = u.name;
+        document.getElementById('inputEmail').value = u.email;
+
+        // เช็คสถานะออเดอร์
+        try {
+          const oRes = await fetch('/api/my-order');
+          const oData = await oRes.json();
+          if (oData.status === 'approved') {
+            document.getElementById('orderForm').style.display = 'none';
+            document.getElementById('statusApproved').style.display = 'block';
+            document.getElementById('downloadBtnStatus').href = oData.downloadLink;
+          } else if (oData.status === 'pending') {
+            document.getElementById('orderForm').style.display = 'none';
+            document.getElementById('statusPending').style.display = 'block';
+          }
+        } catch(e) {}
+      }
+    } catch(e) {}
+  }
+  checkAuth();
 
   // Form submit
   // ---------- PACKAGE POPUP ----------
