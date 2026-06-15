@@ -933,17 +933,24 @@
 <script>
 (function() {
   const ua = navigator.userAgent || '';
-  const isFB = /FBAN|FBAV|FB_IAB|Instagram|Messenger/i.test(ua);
+  // ตรวจ in-app browser ชัดเจน
+  const isFB = /FBAN|FBAV|FB_IAB|FBIOS|FBSV|Instagram/i.test(ua);
   const isLine = /Line\//i.test(ua);
-  const isOther = /MicroMessenger|Snapchat|TikTok|Twitter/i.test(ua);
-  if (isFB || isLine || isOther) {
+  const isOther = /MicroMessenger|Snapchat|TikTok|Twitter|Bytedance/i.test(ua);
+  // ตรวจ iOS WebView (Messenger บน iOS ไม่ใส่ Messenger ใน UA แต่ไม่มี Safari/)
+  const isIOS = /iPhone|iPad|iPod/i.test(ua);
+  const isIOSWebView = isIOS && /AppleWebKit/i.test(ua) && !/Safari\//i.test(ua);
+  // ตรวจ Android WebView
+  const isAndroidWebView = /Android/i.test(ua) && /wv\)|; wv\)/i.test(ua);
+
+  if (isFB || isLine || isOther || isIOSWebView || isAndroidWebView) {
     const overlay = document.getElementById('iabOverlay');
     overlay.style.display = 'flex';
     let name = 'Messenger / Line';
     if (/Instagram/i.test(ua)) name = 'Instagram';
-    else if (/Messenger/i.test(ua)) name = 'Facebook Messenger';
-    else if (/FBAN|FBAV|FB_IAB/i.test(ua)) name = 'Facebook';
+    else if (/FBAN|FBAV|FB_IAB|FBIOS/i.test(ua)) name = 'Facebook';
     else if (isLine) name = 'Line';
+    else if (isIOSWebView || isAndroidWebView) name = 'Messenger / Line';
     document.getElementById('iabName').textContent = name;
   }
 })();
