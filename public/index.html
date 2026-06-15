@@ -919,5 +919,46 @@
   </div>
 </div>
 
+<!-- IN-APP BROWSER WARNING -->
+<div id="iabOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:99999;align-items:center;justify-content:center;padding:24px">
+  <div style="background:#1a1a1a;border:1px solid rgba(249,115,22,.4);border-radius:20px;padding:32px 24px;max-width:360px;width:100%;text-align:center">
+    <div style="font-size:52px;margin-bottom:12px">⚠️</div>
+    <h2 style="color:#f97316;font-size:20px;font-weight:800;margin-bottom:10px">เปิดใน Browser ก่อนนะครับ</h2>
+    <p style="color:#d1d5db;font-size:14px;line-height:1.8;margin-bottom:20px">Google ไม่อนุญาตให้ Login<br/>จาก <strong style="color:#f97316" id="iabName">Messenger / Line</strong><br/><br/>กรุณา <strong>ก็อปปี้ลิงก์</strong> แล้วเปิดใน<br/><strong>Chrome หรือ Safari</strong> แทนครับ</p>
+    <button onclick="copyIabLink()" id="iabCopyBtn" style="width:100%;background:linear-gradient(135deg,#f97316,#ea580c);color:white;border:none;padding:14px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:10px">📋 ก็อปปี้ลิงก์เว็บไซต์</button>
+    <p style="color:#6b7280;font-size:12px">แล้ววางในแถบ Address ของ Chrome/Safari</p>
+  </div>
+</div>
+
+<script>
+(function() {
+  const ua = navigator.userAgent || '';
+  const isFB = /FBAN|FBAV|FB_IAB|Instagram|Messenger/i.test(ua);
+  const isLine = /Line\//i.test(ua);
+  const isOther = /MicroMessenger|Snapchat|TikTok|Twitter/i.test(ua);
+  if (isFB || isLine || isOther) {
+    const overlay = document.getElementById('iabOverlay');
+    overlay.style.display = 'flex';
+    let name = 'Messenger / Line';
+    if (/Instagram/i.test(ua)) name = 'Instagram';
+    else if (/Messenger/i.test(ua)) name = 'Facebook Messenger';
+    else if (/FBAN|FBAV|FB_IAB/i.test(ua)) name = 'Facebook';
+    else if (isLine) name = 'Line';
+    document.getElementById('iabName').textContent = name;
+  }
+})();
+
+function copyIabLink() {
+  const url = 'https://storyproapp.com';
+  navigator.clipboard.writeText(url).then(() => {
+    const btn = document.getElementById('iabCopyBtn');
+    btn.textContent = '✅ ก็อปปี้แล้ว! ไปวางใน Chrome/Safari';
+    btn.style.background = 'linear-gradient(135deg,#22c55e,#16a34a)';
+  }).catch(() => {
+    prompt('ก็อปปี้ลิงก์นี้ แล้วเปิดใน Chrome:', 'https://storyproapp.com');
+  });
+}
+</script>
+
 </body>
 </html>
