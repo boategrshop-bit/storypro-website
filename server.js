@@ -13,7 +13,7 @@ const { google } = require('googleapis');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
-const PRODUCT_LINK = 'https://labs.google/fx/th/tools/flow/shared/tool/8003ba77-e7e4-4002-bc07-28b861f46395';
+const PRODUCT_LINK = 'https://labs.google/fx/tools/flow/shared/tool/2adb1e85-d1ca-489b-acd8-96b85a2a5c3c';
 const TUTORIAL_LINK = 'https://drive.google.com/file/d/1P9kpEbtBABfigy0gGaZgCdDq_Jax84K-/view?usp=sharing';
 const LINE_GROUP_LINK = 'https://line.me/ti/g2/3XDsT6bNx2X90Or8--xd-2WpSyvcuQ7bsVrWjA?utm_source=invitation&utm_medium=link_copy&utm_campaign=default';
 
@@ -46,7 +46,7 @@ const upload = multer({
 });
 
 // ---------- EMAIL ----------
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyxmbwpuUS5Y_r7WIVFnSymhmzu0Nd6tiUR53M4Ep7urOYixqGZZOPVNF-3_9fEHY_q/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwP8qij2tROYjkGIkjJHWRNxbgyrqeKVikqCzKKjlZNZaG7fXWXQEsBm-pN6WNQQHn6/exec';
 
 async function sendEmail(data) {
   try {
