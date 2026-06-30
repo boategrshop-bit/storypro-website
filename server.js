@@ -45,30 +45,114 @@ const upload = multer({
   fileFilter: (req, file, cb) => file.mimetype.startsWith('image/') ? cb(null, true) : cb(new Error('Images only'))
 });
 
-// ---------- EMAIL ----------
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzDO0PiaiJ2HKXWxVhlh9mJ9NMmZ-4LCOZp9AsMdONG8zuYWLlBXsXn-jFbhcDvzlR3/exec';
-
+// ---------- EMAIL (Brevo) ----------
 async function sendEmail(data) {
   try {
     const https = require('https');
-    const body = JSON.stringify(data);
-    const url = new URL(APPS_SCRIPT_URL);
+    const SENDER_EMAIL = process.env.SENDER_EMAIL || 'boategrshop@gmail.com';
+    const SENDER_NAME = process.env.SENDER_NAME || 'AdPro';
+    const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'boategrshop@gmail.com';
+
+    let to, subject, htmlContent;
+
+    if (data.type === 'approve') {
+      to = [{ email: data.email, name: data.name }];
+      subject = '✅ ออเดอร์ของคุณได้รับการอนุมัติแล้ว!';
+      htmlContent = `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:32px 16px;">
+<table width="560" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;">
+  <tr><td style="background:#111111;padding:28px 32px;text-align:center;">
+    <h1 style="margin:0;color:#f97316;font-size:24px;letter-spacing:1px;">AdPro</h1>
+  </td></tr>
+  <tr><td style="padding:32px;">
+    <p style="font-size:20px;font-weight:bold;color:#111;margin:0 0 8px;">สวัสดีคุณ ${data.name} 👋</p>
+    <p style="color:#555;margin:0 0 24px;line-height:1.6;">ออเดอร์ของคุณได้รับการอนุมัติเรียบร้อยแล้ว! กดปุ่มด้านล่างเพื่อเข้าถึงไฟล์ของคุณได้เลย</p>
+    <div style="text-align:center;margin:28px 0;">
+      <a href="${data.downloadLink}" style="display:inline-block;background:#f97316;color:#ffffff;text-decoration:none;padding:14px 36px;border-radius:8px;font-size:16px;font-weight:bold;">⬇️ ดาวน์โหลดไฟล์ของฉัน</a>
+    </div>
+    <hr style="border:none;border-top:1px solid #eee;margin:24px 0;">
+    <p style="color:#333;font-size:14px;font-weight:bold;margin:0 0 12px;">ลิงก์ที่เกี่ยวข้อง:</p>
+    <ul style="padding-left:20px;margin:0;color:#555;font-size:14px;line-height:2;">
+      <li><a href="${PRODUCT_LINK}" style="color:#f97316;">🔗 เข้าใช้งาน Google Flow Tool</a></li>
+      <li><a href="${TUTORIAL_LINK}" style="color:#f97316;">📖 วิดีโอสอนการใช้งาน</a></li>
+      <li><a href="${LINE_GROUP_LINK}" style="color:#f97316;">💬 เข้ากลุ่ม LINE ชุมชน</a></li>
+    </ul>
+    ${data.hasCharacterSheet ? '<p style="margin:16px 0 0;padding:12px 16px;background:#fff7ed;border-left:4px solid #f97316;border-radius:4px;font-size:14px;color:#92400e;">📋 แพ็กเกจของคุณรวม Character Sheet ด้วย — ดูได้ในหน้าดาวน์โหลด</p>' : ''}
+  </td></tr>
+  <tr><td style="background:#f9f9f9;padding:16px 32px;text-align:center;">
+    <p style="margin:0;color:#999;font-size:12px;">หากมีปัญหา ติดต่อได้ที่ ${ADMIN_EMAIL}</p>
+  </td></tr>
+</table></td></tr></table></body></html>`;
+
+    } else if (data.type === 'new_order') {
+      to = [{ email: ADMIN_EMAIL, name: 'Admin' }];
+      subject = `🛒 ออเดอร์ใหม่${data.autoApproved ? ' (Auto-approved ✅)' : ''} — ${data.name}`;
+      htmlContent = `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:32px 16px;">
+<table width="560" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;">
+  <tr><td style="background:#111111;padding:24px 32px;">
+    <h1 style="margin:0;color:#f97316;font-size:20px;">AdPro — ออเดอร์ใหม่ ${data.autoApproved ? '<span style="color:#4ade80;font-size:14px;">(Auto-approved)</span>' : ''}</h1>
+  </td></tr>
+  <tr><td style="padding:28px 32px;">
+    <table width="100%" cellpadding="6" cellspacing="0" style="font-size:14px;color:#333;">
+      <tr><td style="color:#888;width:120px;">ชื่อ</td><td style="font-weight:bold;">${data.name}</td></tr>
+      <tr><td style="color:#888;">อีเมล</td><td>${data.email}</td></tr>
+      <tr><td style="color:#888;">เบอร์โทร</td><td>${data.phone || '-'}</td></tr>
+      <tr><td style="color:#888;">Google</td><td>${data.googleEmail || '-'}</td></tr>
+      <tr><td style="color:#888;">แพ็กเกจ</td><td style="font-weight:bold;color:#f97316;">฿${data.package}</td></tr>
+      <tr><td style="color:#888;">Order ID</td><td style="font-size:12px;color:#999;">${data.orderId}</td></tr>
+    </table>
+    <div style="margin:20px 0;text-align:center;">
+      <a href="${data.slipUrl}" style="display:inline-block;background:#f97316;color:#fff;text-decoration:none;padding:10px 24px;border-radius:6px;font-size:14px;">🧾 ดูสลิปโอนเงิน</a>
+      ${!data.autoApproved && data.approveLink ? `<a href="${data.approveLink}" style="display:inline-block;margin-left:12px;background:#22c55e;color:#fff;text-decoration:none;padding:10px 24px;border-radius:6px;font-size:14px;">✅ Approve ออเดอร์นี้</a>` : ''}
+    </div>
+    <p style="text-align:center;margin:0;"><a href="${data.adminLink}" style="color:#888;font-size:12px;">เปิด Admin Panel</a></p>
+  </td></tr>
+</table></td></tr></table></body></html>`;
+
+    } else {
+      return false;
+    }
+
+    const payload = JSON.stringify({
+      sender: { name: SENDER_NAME, email: SENDER_EMAIL },
+      to,
+      subject,
+      htmlContent
+    });
+
     return new Promise((resolve) => {
       const req = https.request({
-        hostname: url.hostname,
-        path: url.pathname + url.search,
+        hostname: 'api.brevo.com',
+        path: '/v3/smtp/email',
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) }
+        headers: {
+          'api-key': process.env.BREVO_API_KEY,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Content-Length': Buffer.byteLength(payload)
+        }
       }, (res) => {
         let raw = '';
         res.on('data', d => raw += d);
-        res.on('end', () => { console.log('📧 Email sent:', raw); resolve(true); });
+        res.on('end', () => {
+          if (res.statusCode >= 200 && res.statusCode < 300) {
+            console.log(`📧 Email sent [${data.type}] → ${to[0].email}`);
+            resolve(true);
+          } else {
+            console.error(`❌ Email failed [${data.type}] HTTP ${res.statusCode}:`, raw);
+            resolve(false);
+          }
+        });
       });
       req.on('error', e => { console.error('❌ Email error:', e.message); resolve(false); });
-      req.write(body);
+      req.write(payload);
       req.end();
     });
-  } catch(e) { console.error('❌ Email error:', e.message); return false; }
+  } catch(e) {
+    console.error('❌ Email error:', e.message);
+    return false;
+  }
 }
 
 // ---------- SESSION ----------
