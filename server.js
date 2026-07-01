@@ -15,6 +15,7 @@ const PORT = process.env.PORT || 3000;
 const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
 const PRODUCT_LINK = 'https://labs.google/fx/tools/flow/shared/tool/90617a42-8270-4c72-94c5-1d40b5bf3c10';
 const TUTORIAL_LINK = 'https://drive.google.com/file/d/15ZJ38dMajePxdCxBw2uWpdlXdntaAGTy/view?usp=sharing';
+const TUTORIAL_V11_LINK = 'https://drive.google.com/file/d/1C4sNLQAElJ-aQvjPE3pA4_RtWbueoO9O/view?usp=sharing';
 const LINE_GROUP_LINK = 'https://line.me/ti/g2/3XDsT6bNx2X90Or8--xd-2WpSyvcuQ7bsVrWjA?utm_source=invitation&utm_medium=link_copy&utm_campaign=default';
 
 // ---------- DATA ----------
@@ -75,6 +76,7 @@ async function sendEmail(data) {
     <ul style="padding-left:20px;margin:0;color:#555;font-size:14px;line-height:2;">
       <li><a href="${PRODUCT_LINK}" style="color:#f97316;">🔗 เข้าใช้งาน Google Flow Tool</a></li>
       <li><a href="${TUTORIAL_LINK}" style="color:#f97316;">📖 วิดีโอสอนการใช้งาน</a></li>
+      <li><a href="${TUTORIAL_V11_LINK}" style="color:#f97316;">🎬 คลิปสอนใช้งาน V11</a></li>
       <li><a href="${LINE_GROUP_LINK}" style="color:#f97316;">💬 เข้ากลุ่ม LINE ชุมชน</a></li>
     </ul>
     ${data.hasCharacterSheet ? '<p style="margin:16px 0 0;padding:12px 16px;background:#fff7ed;border-left:4px solid #f97316;border-radius:4px;font-size:14px;color:#92400e;">📋 แพ็กเกจของคุณรวม Character Sheet ด้วย — ดูได้ในหน้าดาวน์โหลด</p>' : ''}
