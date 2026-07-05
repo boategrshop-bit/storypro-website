@@ -456,6 +456,23 @@ app.post('/api/settings', express.json(), (req, res) => {
   res.json(s);
 });
 
+// ---------- TEST EMAIL (ลบทิ้งหลังทดสอบ) ----------
+app.get('/api/test-email', async (req, res) => {
+  const result = await sendEmail({
+    type: 'approve',
+    name: 'TEST',
+    email: process.env.ADMIN_EMAIL || 'boategrshop@gmail.com',
+    downloadLink: `${BASE_URL}/download?t=TEST`,
+    hasCharacterSheet: false
+  });
+  res.json({
+    success: result,
+    brevo_key_set: !!process.env.BREVO_API_KEY,
+    sender_email: process.env.SENDER_EMAIL || '(not set)',
+    sender_name: process.env.SENDER_NAME || '(not set)'
+  });
+});
+
 // ---------- ADMIN ----------
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
 app.get('/api/orders', (req, res) => res.json(readOrders().reverse()));
